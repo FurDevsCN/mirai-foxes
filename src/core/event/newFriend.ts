@@ -1,7 +1,6 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { NewFriendRequestEvent } from '../../Event'
-
 const Operate = {
   accept: 0,
   refuse: 1,

@@ -1,6 +1,5 @@
 import WebSocket from 'ws'
 import { EventBase, WsClose, WsUnexpectedResponse } from '../Event'
-
 /**
  * 开始侦听事件
  * @param option 设定

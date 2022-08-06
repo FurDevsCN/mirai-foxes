@@ -2,7 +2,6 @@ import { MiraiError } from '../Error'
 import axios from 'axios'
 import { UserID } from '../Base'
 import { MessageBase } from '../Message'
-
 /**
  * 向 qq 好友发送消息
  * @param option 设定

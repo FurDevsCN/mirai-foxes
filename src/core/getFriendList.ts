@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import { User } from '../Base'
 import axios from 'axios'
-
 /**
  * 获取好友列表
  * @param option 选项

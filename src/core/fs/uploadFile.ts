@@ -1,9 +1,7 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { GroupID, UserID } from '../../Base'
-
 import FormData from 'form-data'
-
 /**
  *  上传文件到服务器
  * @param option 选项

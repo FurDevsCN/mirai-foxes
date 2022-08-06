@@ -1,8 +1,4 @@
-// 用于与 Bot.sendMessage 耦合的接口
-// const { MessageChainGetable } = require('./interface')
-
 import { GroupID, UserID } from './Base'
-
 // 消息类型。
 export type MessageType =
   | 'Source'
@@ -16,6 +12,10 @@ export type MessageType =
   | 'Xml'
   | 'Json'
   | 'App'
+  | 'Poke'
+  | 'Dice'
+  | 'MarketFace'
+  | 'MusicShare'
   | 'Forward'
   | 'Face'
   | 'File'
@@ -65,7 +65,6 @@ export class Quote extends MessageBase {
     ]
   }
 }
-
 export class Plain extends MessageBase {
   text: string
   constructor(text: string) {
@@ -73,7 +72,6 @@ export class Plain extends MessageBase {
     this.text = text
   }
 }
-
 export class At extends MessageBase {
   target: UserID
   display: string
@@ -83,13 +81,11 @@ export class At extends MessageBase {
     ;[this.target, this.display] = [target, display]
   }
 }
-
 export class AtAll extends MessageBase {
   constructor() {
     super({ type: 'AtAll' })
   }
 }
-
 export class Image extends MessageBase {
   imageId: string
   url: string
@@ -109,7 +105,6 @@ export class Image extends MessageBase {
     ;[this.imageId, this.url, this.path] = [imageId, url, path]
   }
 }
-
 export class FlashImage extends MessageBase {
   imageId: string
   url: string
@@ -129,7 +124,6 @@ export class FlashImage extends MessageBase {
     ;[this.imageId, this.url, this.path] = [imageId, url, path]
   }
 }
-
 export class Voice extends MessageBase {
   voiceId: string
   url: string
@@ -149,7 +143,65 @@ export class Voice extends MessageBase {
     ;[this.voiceId, this.url, this.path] = [voiceId, url, path]
   }
 }
-
+export class Poke extends MessageBase {
+  name: string
+  constructor({ name }: { name: string }) {
+    super({ type: 'Poke' })
+    this.name = name
+  }
+}
+export class Dice extends MessageBase {
+  value: number
+  constructor({ value }: { value: number }) {
+    super({ type: 'Dice' })
+    this.value = value
+  }
+}
+export class MarketFace extends MessageBase {
+  id: number
+  name: string
+  constructor({ id, name }: { id: number; name: string }) {
+    super({ type: 'MarketFace' })
+    ;[this.id, this.name] = [id, name]
+  }
+}
+export class MusicShare extends MessageBase {
+  kind: string
+  title: string
+  summary: string
+  jumpUrl: string
+  pictureUrl: string
+  musicUrl: string
+  brief: string
+  constructor({
+    kind,
+    title,
+    summary,
+    jumpUrl,
+    pictureUrl,
+    musicUrl,
+    brief
+  }: {
+    kind: string
+    title: string
+    summary: string
+    jumpUrl: string
+    pictureUrl: string
+    musicUrl: string
+    brief: string
+  }) {
+    super({ type: 'MusicShare' })
+    ;[
+      this.kind,
+      this.title,
+      this.summary,
+      this.jumpUrl,
+      this.pictureUrl,
+      this.musicUrl,
+      this.brief
+    ] = [kind, title, summary, jumpUrl, pictureUrl, musicUrl, brief]
+  }
+}
 export class File extends MessageBase {
   id: string
   name: string
@@ -159,7 +211,6 @@ export class File extends MessageBase {
     ;[this.id, this.name, this.size] = [id, name, size]
   }
 }
-
 export class Xml extends MessageBase {
   xml: string
   constructor(xml: string) {
@@ -167,7 +218,6 @@ export class Xml extends MessageBase {
     this.xml = xml
   }
 }
-
 export class Json extends MessageBase {
   json: string
   constructor(json: string) {
@@ -175,7 +225,6 @@ export class Json extends MessageBase {
     this.json = json
   }
 }
-
 export class App extends MessageBase {
   content: string
   constructor(content: string) {
@@ -190,7 +239,6 @@ export interface ForwardNode {
   messageChain?: MessageType[]
   messageId?: number
 }
-
 export class ForwardNodeList extends MessageBase {
   nodeList: ForwardNode[]
   add(node: ForwardNode | number): this {
@@ -208,7 +256,6 @@ export class ForwardNodeList extends MessageBase {
     this.nodeList = nodeList
   }
 }
-
 export class Face extends MessageBase {
   faceId: number
   name: string

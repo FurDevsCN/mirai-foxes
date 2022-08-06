@@ -1,35 +1,37 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
-import { GroupID, UserID } from '../Base'
+import { Message } from '../Event'
 /**
- * 解除禁言群成员
+ * 由messageId取信息
  * @param option 选项
  * @param option.httpUrl    mirai-api-http server 的地址
  * @param option.sessionKey 会话标识
- * @param option.target     欲解除禁言成员所在群号
- * @param option.memberId   欲解除禁言成员 qq 号
+ * @param option.messageId  消息id
+ * @returns 信息
  */
 export default async ({
   httpUrl,
   sessionKey,
-  target,
-  memberId
+  messageId
 }: {
   httpUrl: string
   sessionKey: string
-  target: GroupID
-  memberId: UserID
-}) => {
+  messageId: number
+}): Promise<Message> => {
   // 请求
-  const responseData = await axios.post<{
-    msg: string
+  const responseData = await axios.get<{
     code: number
-  }>(new URL('/unmute', httpUrl).toString(), { sessionKey, target, memberId })
+    msg: string
+    data: Message
+  }>(new URL('/messageFromId', httpUrl).toString(), {
+    params: { sessionKey, messageId }
+  })
   const {
-    data: { msg: message, code }
+    data: { code, msg: message, data }
   } = responseData
   // 抛出 mirai 的异常
   if (code != undefined && code != 0) {
     throw new MiraiError(code, message)
   }
+  return data
 }

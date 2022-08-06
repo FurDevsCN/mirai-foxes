@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { UserID } from '../Base'
-
 /**
  * 校验 sessionKey，将一个 session 绑定到指定的 qq 上
  * @param option 设定

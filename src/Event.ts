@@ -606,9 +606,15 @@ export class OtherClientOfflineEvent extends EventBase {
     this.client = client
   }
 }
-export class FriendMessage extends EventBase {
-  sender: User
+export class BaseFriendMessage extends EventBase {
   messageChain: MessageChain
+  constructor({ messageChain }: { messageChain: MessageChain }) {
+    super({ type: 'FriendMessage' })
+    this.messageChain = messageChain
+  }
+}
+export class FriendMessage extends BaseFriendMessage {
+  sender: User
   constructor({
     sender,
     messageChain
@@ -616,13 +622,19 @@ export class FriendMessage extends EventBase {
     sender: User
     messageChain: MessageChain
   }) {
-    super({ type: 'FriendMessage' })
-    ;[this.sender, this.messageChain] = [sender, messageChain]
+    super({ messageChain })
+    this.sender = sender
   }
 }
-export class GroupMessage extends EventBase {
-  sender: Member
+export class BaseGroupMessage extends EventBase {
   messageChain: MessageChain
+  constructor({ messageChain }: { messageChain: MessageChain }) {
+    super({ type: 'GroupMessage' })
+    this.messageChain = messageChain
+  }
+}
+export class GroupMessage extends BaseGroupMessage {
+  sender: Member
   constructor({
     sender,
     messageChain
@@ -630,13 +642,59 @@ export class GroupMessage extends EventBase {
     sender: Member
     messageChain: MessageChain
   }) {
-    super({ type: 'GroupMessage' })
-    ;[this.sender, this.messageChain] = [sender, messageChain]
+    super({ messageChain })
+    this.sender = sender
   }
 }
-export class OtherClientMessage extends EventBase {
-  sender: OtherClient
+export class BaseTempMessage extends EventBase {
   messageChain: MessageChain
+  constructor({ messageChain }: { messageChain: MessageChain }) {
+    super({ type: 'TempMessage' })
+    this.messageChain = messageChain
+  }
+}
+export class TempMessage extends BaseTempMessage {
+  sender: Member
+  constructor({
+    sender,
+    messageChain
+  }: {
+    sender: Member
+    messageChain: MessageChain
+  }) {
+    super({ messageChain })
+    this.sender = sender
+  }
+}
+export class BaseStrangerMessage extends EventBase {
+  messageChain: MessageChain
+  constructor({ messageChain }: { messageChain: MessageChain }) {
+    super({ type: 'StrangerMessage' })
+    this.messageChain = messageChain
+  }
+}
+export class StrangerMessage extends BaseStrangerMessage {
+  sender: User
+  constructor({
+    sender,
+    messageChain
+  }: {
+    sender: User
+    messageChain: MessageChain
+  }) {
+    super({ messageChain })
+    this.sender = sender
+  }
+}
+export class BaseOtherClientMessage extends EventBase {
+  messageChain: MessageChain
+  constructor({ messageChain }: { messageChain: MessageChain }) {
+    super({ type: 'OtherClientMessage' })
+    this.messageChain = messageChain
+  }
+}
+export class OtherClientMessage extends BaseOtherClientMessage {
+  sender: OtherClient
   constructor({
     sender,
     messageChain
@@ -644,8 +702,8 @@ export class OtherClientMessage extends EventBase {
     sender: OtherClient
     messageChain: MessageChain
   }) {
-    super({ type: 'OtherClientMessage' })
-    ;[this.sender, this.messageChain] = [sender, messageChain]
+    super({ messageChain })
+    this.sender = sender
   }
 }
 export interface WsClose {
@@ -706,9 +764,19 @@ interface Events {
   OtherClientOfflineEvent: OtherClientOfflineEvent
 }
 export type EventType = keyof Events
-export type TempMessage = GroupMessage
-export type StrangerMessage = FriendMessage
-export type Message = FriendMessage | GroupMessage | OtherClientMessage
+export type Message =
+  | FriendMessage
+  | GroupMessage
+  | OtherClientMessage
+  | StrangerMessage
+  | TempMessage
+// 适用于仅要求消息内容而不要求发送者的情况。
+export type BaseMessage =
+  | BaseFriendMessage
+  | BaseGroupMessage
+  | BaseOtherClientMessage
+  | BaseStrangerMessage
+  | BaseTempMessage
 export type EventArg<T extends EventType> = Events[T]
 // Processor
 export type Processor<T extends EventType> = (

@@ -1,6 +1,5 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
-
 /**
  * 撤回由 messageId 确定的消息
  * @param option 选项。

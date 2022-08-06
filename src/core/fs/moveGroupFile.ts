@@ -1,7 +1,6 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { GroupID } from '../../Base'
-
 /**
  *  移动群文件
  * @param option 选项
@@ -12,7 +11,6 @@ import { GroupID } from '../../Base'
  * @param option.moveTo           移动到指定id
  * @param option.group            群号
  */
-
 export default async ({
   httpUrl,
   sessionKey,

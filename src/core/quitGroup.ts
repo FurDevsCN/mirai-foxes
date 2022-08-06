@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { GroupID } from '../Base'
-
 /**
  * 移除群聊
  * @param option 选项

@@ -1,7 +1,6 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { FileDetail, GroupID } from '../../Base'
-
 /**
  *  群创建文件夹
  * @param option 选项
@@ -11,7 +10,6 @@ import { FileDetail, GroupID } from '../../Base'
  * @param option.directoryName    新文件夹名称
  * @param option.group            群号
  */
-
 export default async ({
   httpUrl,
   sessionKey,

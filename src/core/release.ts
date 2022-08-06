@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { UserID } from '../Base'
-
 /**
  * 关闭一个会话
  * @param option 设定。

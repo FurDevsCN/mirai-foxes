@@ -8,7 +8,6 @@ import _moveGroupFile from './core/fs/moveGroupFile'
 import _makeDirectory from './core/fs/makeDirectory'
 import _getDownloadInfo from './core/fs/getDownloadInfo'
 import { Bot } from './Bot'
-
 async function getGroupFileList({
   httpUrl,
   sessionKey,
@@ -51,7 +50,6 @@ function getInstance(
 export class FileManager {
   private bot: Bot
   private target: GroupID | UserID
-
   /**
    * 列出根目录的文件/文件夹
    * @returns 文件/目录 数组
@@ -161,7 +159,6 @@ export class FileManager {
     void ([this.bot, this.target] = [bot, target])
   }
 }
-
 export class File {
   private bot: Bot
   private target: GroupID
@@ -190,7 +187,6 @@ export class File {
       path: this._detail.path
     })
   }
-
   /**
    *  移动文件
    * @returns this
@@ -207,7 +203,6 @@ export class File {
     await this.update()
     return this
   }
-
   /**
    *  重命名文件
    * @returns this
@@ -220,12 +215,10 @@ export class File {
       path: this._detail.path,
       renameTo: name
     })
-
     // 更新detail
     await this.update()
     return this
   }
-
   /**
    * 更新文件信息
    */
@@ -239,7 +232,6 @@ export class File {
     })
     return this
   }
-
   /**
    *  文件属性
    */
@@ -250,7 +242,6 @@ export class File {
     void ([this.bot, this.target, this._detail] = [bot, target, detail])
   }
 }
-
 export class Directory {
   private bot: Bot
   private target: GroupID

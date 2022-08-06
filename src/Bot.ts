@@ -37,7 +37,7 @@ import _botInvited from './core/event/botInvited'
 import _memberJoin from './core/event/memberJoin'
 import _newFriend from './core/event/newFriend'
 import _setEssence from './core/setEssence'
-
+import _getMsg from './core/getMsg'
 import {
   EventIndex,
   EventType,
@@ -47,9 +47,16 @@ import {
   BotInvitedJoinGroupRequestEvent,
   EventArg,
   EventBase,
-  Matcher
+  Matcher,
+  GroupMessage,
+  Message,
+  BaseFriendMessage,
+  BaseGroupMessage,
+  BaseMessage,
+  BaseStrangerMessage,
+  BaseTempMessage
 } from './Event'
-import { MessageBase, Voice } from './Message'
+import { MessageBase, Source, Voice } from './Message'
 import {
   Announcement,
   Group,
@@ -64,7 +71,7 @@ import {
 import { FileManager } from './File'
 interface SendOption<T extends GroupID | UserID | MemberID> {
   qq: T
-  quote?: number
+  reply?: BaseMessage
   message: MessageBase[]
 }
 export interface Config {
@@ -185,9 +192,27 @@ export class Bot {
    */
   get config(): ConfigInit {
     if (!this.conf) {
-      throw new Error('请先设定 this.conf')
+      throw new Error('config 请先调用 open，建立一个会话')
     }
     return this.conf
+  }
+  /**
+   * 由消息ID获得一条消息
+   * @param messageId 消息ID
+   * @returns 消息
+   */
+  async msg(messageId: number): Promise<Message> {
+    // 检查对象状态
+    if (!this.conf) {
+      throw new Error('config 请先调用 open，建立一个会话')
+    }
+    // 需要使用的参数
+    const { httpUrl, sessionKey } = this.conf
+    return await _getMsg({
+      httpUrl,
+      sessionKey,
+      messageId
+    })
   }
   /**
    * 获得最新的数据/等待数据。
@@ -251,58 +276,81 @@ export class Bot {
   }
   /**
    * 向 qq 好友 或 qq 群发送消息，若同时提供，则优先向好友发送消息
-   * @param type    必选 群聊消息|好友消息|临时消息
-   * @param option 选项。
+   * @param type           必选 群聊消息|好友消息|临时消息
+   * @param option         选项。
    * @param option.qq      必选，账户 qq 号或上下文
-   * @param option.quote   可选，消息引用，使用发送时返回的 messageId
-   * @param option.message 必选，Message 实例或 MessageType 数组
-   * @returns messageId
+   * @param option.reply   可选，消息引用，使用Message
+   * @param option.message 必选，消息数组
+   * @returns 消息
    */
-  async send(type: 'group', option: SendOption<GroupID>): Promise<number>
-  async send(type: 'friend', option: SendOption<UserID>): Promise<number>
+  async send(
+    type: 'group',
+    option: SendOption<GroupID>
+  ): Promise<BaseGroupMessage>
+  async send(
+    type: 'friend',
+    option: SendOption<UserID>
+  ): Promise<BaseFriendMessage>
   async send(
     type: 'temp',
-    option: SendOption<UserID | MemberID>
-  ): Promise<number>
+    option: SendOption<UserID>
+  ): Promise<BaseStrangerMessage>
+  async send(
+    type: 'temp',
+    option: SendOption<MemberID>
+  ): Promise<BaseTempMessage>
   async send(
     type: 'group' | 'friend' | 'temp',
     option: SendOption<UserID | GroupID | MemberID>
-  ): Promise<number> {
+  ): Promise<BaseMessage> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('send 请先调用 open，建立一个会话')
     }
+    let msgtype: EventType, id: number
     // 需要使用的参数
     const { httpUrl, sessionKey } = this.conf
     // 根据 temp、friend、group 参数的情况依次调用
     if (type == 'temp') {
       if (option.qq instanceof MemberID) {
-        return await _sendTempMessage({
+        msgtype = 'TempMessage'
+        id = await _sendTempMessage({
           httpUrl,
           sessionKey,
           qq: option.qq.qq,
           group: option.qq.group,
-          quote: option.quote,
+          quote: option.reply?.messageChain[0].id,
+          messageChain: option.message
+        })
+      } else {
+        msgtype = 'StrangerMessage'
+        id = await _sendTempMessage({
+          httpUrl,
+          sessionKey,
+          qq: option.qq,
+          quote: option.reply?.messageChain[0].id,
           messageChain: option.message
         })
       }
-      return await _sendTempMessage({
-        httpUrl,
-        sessionKey,
-        qq: option.qq,
-        quote: option.quote,
-        messageChain: option.message
-      })
-    } else {
-      if (option.qq instanceof MemberID)
-        throw new Error(`${type} 不允许使用上下文`)
-      return await (type == 'friend' ? _sendFriendMessage : _sendGroupMessage)({
+    } else if (!(option.qq instanceof MemberID)) {
+      msgtype = type == 'friend' ? 'FriendMessage' : 'GroupMessage'
+      id = await (type == 'friend' ? _sendFriendMessage : _sendGroupMessage)({
         httpUrl,
         sessionKey,
         target: option.qq,
-        quote: option.quote,
+        quote: option.reply?.messageChain[0].id,
         messageChain: option.message
       })
+    } else throw new Error('send 参数错误')
+    return {
+      type: msgtype,
+      messageChain: [
+        new Source({
+          id,
+          time: Math.floor(Date.now() / 1000)
+        }),
+        ...option.message
+      ]
     }
   }
   /**
@@ -461,17 +509,17 @@ export class Bot {
     } else this.event = {}
   }
   /**
-   * 撤回由 messageId 确定的消息
-   * @param messageId 欲撤回消息的 messageId
+   * 撤回消息
+   * @param message 欲撤回的消息
    */
-  async recall(messageId: number): Promise<void> {
+  async recall(message: BaseMessage): Promise<void> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('recall 请先调用 open，建立一个会话')
     }
     const { httpUrl, sessionKey } = this.conf
     // 撤回消息
-    await _recall({ httpUrl, sessionKey, target: messageId })
+    await _recall({ httpUrl, sessionKey, target: message.messageChain[0].id })
   }
   /**
    * FIXME: 上游错误:type 指定为 'friend' 或 'temp' 时发送的图片显示红色感叹号，无法加载，group 则正常
@@ -552,7 +600,6 @@ export class Bot {
     const { httpUrl, sessionKey } = this.conf
     return await _getGroupList({ httpUrl, sessionKey })
   }
-
   /**
    * 获取指定群的成员列表
    * @param group 必选，欲获取成员列表的群号
@@ -570,7 +617,6 @@ export class Bot {
       target: group
     })
   }
-
   /**
    * 获取群成员设置(members的细化操作)
    * @param info 上下文对象。
@@ -726,7 +772,6 @@ export class Bot {
     const { httpUrl, sessionKey } = this.conf
     await _publishAnno({ httpUrl, sessionKey, target: group, content, pinned })
   }
-
   /**
    * 删除群公告
    * @param group 必选，群号
@@ -939,15 +984,19 @@ export class Bot {
   }
   /**
    *  设置群精华消息
-   * @param messageId 必选，消息 id
+   * @param message 必选，消息
    */
-  async setEssence(messageId: number): Promise<void> {
+  async setEssence(message: GroupMessage): Promise<void> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('setEssence 请先调用 open，建立一个会话')
     }
     const { httpUrl, sessionKey } = this.conf
-    await _setEssence({ httpUrl, sessionKey, target: messageId })
+    await _setEssence({
+      httpUrl,
+      sessionKey,
+      target: message.messageChain[0].id
+    })
   }
   constructor() {
     this.conf = undefined

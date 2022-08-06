@@ -2,7 +2,6 @@ import { MiraiError } from '../Error'
 import axios from 'axios'
 import { MessageBase } from '../Message'
 import { GroupID, UserID } from '../Base'
-
 /**
  * 向临时对象发送消息
  * @param option 设定
@@ -47,7 +46,6 @@ export default async ({
   const {
     data: { msg: message, code, messageId }
   } = responseData
-
   // 抛出 mirai 的异常
   if (code != undefined && code != 0) {
     throw new MiraiError(code, message)

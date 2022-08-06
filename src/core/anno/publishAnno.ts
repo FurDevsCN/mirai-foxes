@@ -1,7 +1,6 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { GroupID } from '../../Base'
-
 /**
  * 发布群公告
  * @param option 选项

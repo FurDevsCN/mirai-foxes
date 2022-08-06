@@ -151,7 +151,6 @@ class Parser {
     }
   }
 }
-
 class MiddlewareBase {
   private matcher: Matcher
   private parser: Parser

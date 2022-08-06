@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import FormData from 'form-data'
-
 /**
  * 上传图片至服务器，返回指定 type 的 imageId，url，及 path
  * @param option 选项

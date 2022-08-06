@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { GroupID } from '../Base'
-
 /**
  * 全员禁言
  * @param option 选项

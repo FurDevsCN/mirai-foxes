@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import { Profile } from '../Base'
 import axios from 'axios'
-
 /**
  *  获取Bot信息
  * @param option 选项

@@ -1,7 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { GroupID, UserID } from '../Base'
-
 /**
  * 发送戳一戳消息
  * @param option 设定。
