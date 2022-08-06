@@ -1,5 +1,8 @@
 # mirai-foxes
 
+[![CodeFactor](https://www.codefactor.io/repository/github/furryr/mirai-foxes/badge)](https://www.codefactor.io/repository/github/furryr/mirai-foxes)
+[![HitCount](https://hits.dwyl.com/FurryR/mirai-foxes.svg?style=flat-square)](http://hits.dwyl.com/FurryR/mirai-foxes)
+
 mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代码重写，运行在 Node.js 下的 Typescript QQ 机器人开发框架。
 
 在 Mirai-js 代码的基础上进行了一些修正，总体提高了代码的可读性，并添加了几个新功能（~~还从别的框架抄了点功能过来~~）。
