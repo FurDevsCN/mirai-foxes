@@ -22,7 +22,7 @@ async function getGroupFileList({
 }): Promise<FileDetail[]> {
   let offset = 0
   let temp: FileDetail[] = []
-  let fileList: FileDetail[] = []
+  const fileList: FileDetail[] = []
   while (
     (temp = await _getGroupFileList({
       httpUrl,
@@ -33,7 +33,7 @@ async function getGroupFileList({
       size: 10
     })).length > 0
   ) {
-    fileList = fileList.concat(temp)
+    fileList.push(...temp)
     // 获取下一页
     offset += 10
   }
@@ -158,8 +158,7 @@ export class FileManager {
     ) as File
   }
   constructor(bot: Bot, target: GroupID | UserID) {
-    /* eslint-disable @typescript-eslint/no-extra-semi */
-    ;[this.bot, this.target] = [bot, target]
+    void ([this.bot, this.target] = [bot, target])
   }
 }
 
@@ -248,8 +247,7 @@ export class File {
     return this._detail
   }
   constructor(bot: Bot, target: GroupID, detail: FileDetail) {
-    /* eslint-disable @typescript-eslint/no-extra-semi */
-    ;[this.bot, this.target, this._detail] = [bot, target, detail]
+    void ([this.bot, this.target, this._detail] = [bot, target, detail])
   }
 }
 
@@ -349,7 +347,6 @@ export class Directory {
     return this._detail
   }
   constructor(bot: Bot, target: GroupID, detail: FileDetail) {
-    /* eslint-disable @typescript-eslint/no-extra-semi */
-    ;[this.bot, this.target, this._detail] = [bot, target, detail]
+    void ([this.bot, this.target, this._detail] = [bot, target, detail])
   }
 }

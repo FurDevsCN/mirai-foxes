@@ -1,6 +1,5 @@
-import { ClientRequest, IncomingMessage } from 'http'
 import WebSocket from 'ws'
-import { EventType } from '../Event'
+import { EventBase, WsClose, WsUnexpectedResponse } from '../Event'
 
 /**
  * 开始侦听事件
@@ -25,16 +24,10 @@ export default async ({
   wsUrl: string
   sessionKey: string
   verifyKey: string
-  message: (data: { type: EventType }) => void
+  message: (data: EventBase) => void
   error: (err: Error) => void
-  close: ({ code, reason }: { code: number; reason: Buffer }) => void
-  unexpectedResponse: ({
-    request,
-    response
-  }: {
-    request: ClientRequest
-    response: IncomingMessage
-  }) => void
+  close: ({ code, reason }: WsClose) => void
+  unexpectedResponse: (obj: WsUnexpectedResponse) => void
 }): Promise<WebSocket> => {
   const ws = new WebSocket(
     new URL(

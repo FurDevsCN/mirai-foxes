@@ -2,7 +2,7 @@
   "compilerOptions": {
     "sourceMap": false,
     "module": "CommonJS",
-    //"noImplicitAny": true,
+    "noImplicitAny": true,
     "removeComments": false /* Do not emit comments to output. */,
     // "noEmit": true,                        /* Do not emit outputs. */
     // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
@@ -24,9 +24,7 @@
     /* Module Resolution Options */
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
@@ -38,7 +36,5 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

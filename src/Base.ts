@@ -42,9 +42,12 @@ export interface FileDetail {
   // 最后修改时间
   lastModifyTime: number
 }
-export interface MemberID {
+export class MemberID {
   group: GroupID
   qq: UserID
+  constructor({ group, qq }: { group: GroupID; qq: UserID }) {
+    void ([this.group, this.qq] = [group, qq])
+  }
 }
 export type UserID = number
 export type GroupID = number

@@ -1,4 +1,4 @@
-# <center>mirai-foxes<center>
+# mirai-foxes
 
 mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代码重写，运行在 Node.js 下的 Typescript QQ 机器人开发框架。
 
@@ -46,7 +46,7 @@ Mirai-js QQ 群: 730757181
 
 [Mirai-js](https://github.com/Drincann/Mirai-js)：
 
-> 本项目较 Mirai-js 多出了完整的类型注释，但本项目的 Middleware 较 Mirai-js 功能更弱（我懒得重写，~~要写暑假作业了~~）（~~加上数据放 data 里的方式太迷惑了~~），仅有部分简单中间件（~~借鉴 Ariadne~~），虽然能满足基本的命令匹配需求，但操作起来可能仍然比较棘手。
+> 本项目较 Mirai-js 多出了完整的类型注释，但本项目的 Middleware 较 Mirai-js 功能更弱（我懒得重写，~~要写暑假作业了~~）（~~加上数据放 data 里的方式太迷惑了~~），仅有部分简单中间件（~~借鉴 Ariadne~~），虽然能满足基本的命令匹配需求，但操作起来可能仍然比较棘手。**mirai-js 也有文档，而本项目还在咕。**
 
 ## 支持这个项目
 
@@ -56,8 +56,8 @@ Mirai-js QQ 群: 730757181
 
 ## 感谢
 
-## <center>Code editing. <b>Redefined.</b></center>
+### Code editing. **Redefined.**
 
-本项目使用免费且自由的 [https://code.visualstudio.com/](VSCode) 完成开发。
+本项目使用免费且自由的 [Visual Studio Code](https://code.visualstudio.com/) 完成开发。
 
-感谢 [JetBrains](https://www.jetbrains.com/community/opensource/#support) 对该项目支持的开源开发许可证。
+同时也推荐您使用 [JetBrains](https://www.jetbrains.com/) 开发工具。

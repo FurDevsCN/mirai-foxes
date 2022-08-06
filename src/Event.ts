@@ -709,13 +709,16 @@ export type EventType = keyof Events
 export type TempMessage = GroupMessage
 export type StrangerMessage = FriendMessage
 export type Message = FriendMessage | GroupMessage | OtherClientMessage
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type EventArg<T extends EventType | null> = T extends EventType
-  ? Events[T]
-  : any
+export type EventArg<T extends EventType> = Events[T]
 // Processor
-export type Processor<T extends EventType | null = EventArg<null>> = (
+export type Processor<T extends EventType> = (
   data: EventArg<T>
 ) => Promise<void> | void
-export type EventMap = Map<EventType, (Processor | undefined)[]>
-export type EventIndex = number
+export type Matcher<T extends EventType> = (data: EventArg<T>) => boolean
+export class EventIndex<T extends EventType> {
+  type: T
+  index: number
+  constructor({ type, index }: { type: T; index: number }) {
+    void ([this.type, this.index] = [type, index])
+  }
+}

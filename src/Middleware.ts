@@ -32,7 +32,7 @@ class UserFilter {
   }
   done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'> {
     return async (data: FriendMessage): Promise<void> => {
-      if (data.sender.id in this._filt) await fn(data)
+      if (this._filt.includes(data.sender.id)) await fn(data)
     }
   }
 }
@@ -101,11 +101,10 @@ class Matcher {
     )
     return this
   }
-  done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'>
-  done(fn: Processor<'GroupMessage'>): Processor<'GroupMessage'>
-  done(fn: Processor<'OtherClientMessage'>): Processor<'OtherClientMessage'>
-  done(fn: Processor): Processor {
-    return async (data: EventArg<null>): Promise<void> => {
+  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
+    fn: Processor<T>
+  ): Processor<T> {
+    return async (data: EventArg<T>): Promise<void> => {
       if (
         this._matchers.every((v: (data: MessageChain) => boolean) =>
           v(data.messageChain)
@@ -143,11 +142,10 @@ class Parser {
     this.enable = true
     return this
   }
-  done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'>
-  done(fn: Processor<'GroupMessage'>): Processor<'GroupMessage'>
-  done(fn: Processor<'OtherClientMessage'>): Processor<'OtherClientMessage'>
-  done(fn: Processor): Processor {
-    return async (data: EventArg<null>): Promise<void> => {
+  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
+    fn: Processor<T>
+  ): Processor<T> {
+    return async (data: EventArg<T>): Promise<void> => {
       if (this.enable) data.messageChain = this.lexer(data.messageChain)
       await fn(data)
     }
@@ -228,21 +226,11 @@ class MiddlewareBase {
     this.parser.cmd()
     return this
   }
-  static done(
-    base: MiddlewareBase,
-    fn: Processor<'FriendMessage'>
-  ): Processor<'FriendMessage'>
-  static done(
-    base: MiddlewareBase,
-    fn: Processor<'GroupMessage'>
-  ): Processor<'GroupMessage'>
-  static done(
-    base: MiddlewareBase,
-    fn: Processor<'OtherClientMessage'>
-  ): Processor<'OtherClientMessage'>
-  static done(base: MiddlewareBase, fn: Processor): Processor {
+  static done<
+    T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'
+  >(base: MiddlewareBase, fn: Processor<T>): Processor<T> {
     return base.parser.done(
-      base.matcher.done(async (data: EventArg<null>): Promise<void> => {
+      base.matcher.done(async (data: EventArg<T>): Promise<void> => {
         await fn(data)
       })
     )
@@ -342,11 +330,10 @@ export class Middleware extends MiddlewareBase {
    * @param fn 处理结束后要执行的函数
    * @returns 事件处理器
    */
-  done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'>
-  done(fn: Processor<'GroupMessage'>): Processor<'GroupMessage'>
-  done(fn: Processor<'OtherClientMessage'>): Processor<'OtherClientMessage'>
-  done(fn: Processor): Processor {
-    return MiddlewareBase.done(this, fn)
+  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
+    fn: Processor<T>
+  ): Processor<T> {
+    return MiddlewareBase.done<T>(this, fn)
   }
   constructor() {
     super()

@@ -40,13 +40,14 @@ import _setEssence from './core/setEssence'
 
 import {
   EventIndex,
-  EventMap,
   EventType,
   Processor,
   NewFriendRequestEvent,
   MemberJoinRequestEvent,
   BotInvitedJoinGroupRequestEvent,
-  EventArg
+  EventArg,
+  EventBase,
+  Matcher
 } from './Event'
 import { MessageBase, Voice } from './Message'
 import {
@@ -61,6 +62,11 @@ import {
   GroupInfo
 } from './Base'
 import { FileManager } from './File'
+interface SendOption<T extends GroupID | UserID | MemberID> {
+  qq: T
+  quote?: number
+  message: MessageBase[]
+}
 export interface Config {
   // 账户QQ号。
   qq: UserID
@@ -79,8 +85,10 @@ export interface ConfigInit extends Config {
 export class Bot {
   private conf: undefined | ConfigInit
   private ws: undefined | WebSocket
-  private event: EventMap = new Map()
-  private waiting: Map<EventType, ((data: unknown) => boolean)[]> = new Map()
+  private event: Partial<
+    Record<EventType, (Processor<EventType> | undefined)[]>
+  > = {}
+  private waiting: Partial<Record<EventType, Matcher<EventType>[]>> = {}
   /**
    * ws监听初始化。
    */
@@ -97,100 +105,78 @@ export class Bot {
       wsUrl: this.conf.wsUrl,
       sessionKey: this.conf.sessionKey,
       verifyKey: this.conf.verifyKey,
-      message: (data: { type: EventType }) => {
-        // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
-        if (this.event.has(data.type)) {
-          if (this.waiting.has(data.type)) {
-            const t = this.waiting.get(data.type)
-            if (t && t.length > 0) {
-              // 此事件已被锁定
-              for (const v in t) {
-                // 事件被触发
-                if (t[v](data)) {
-                  delete t[v]
-                  return
-                }
-              }
+      message: (data: EventBase) => {
+        const f = this.waiting[data.type]
+        const arg = data as EventArg<EventType>
+        if (f) {
+          // 此事件已被锁定
+          for (const v in f) {
+            // 事件被触发
+            if (f[v](arg)) {
+              delete f[v]
+              this.waiting[data.type] = f
+              return
             }
           }
-          this.event
-            .get(data.type)
-            ?.forEach(
-              (i: undefined | Processor): void => void (i ? i(data) : null)
-            )
         }
+        this.event[data.type]?.forEach(
+          (i?: Processor<EventType>): void => void (i ? i(arg) : null)
+        )
       },
       error: err => {
-        const type: EventType = 'error'
-        if (this.event.has(type)) {
-          if (this.waiting.has(type)) {
-            const t = this.waiting.get(type)
-            if (t && t.length > 0) {
-              // 此事件已被锁定
-              for (const v in t) {
-                // 事件被触发
-                if (t[v](err)) {
-                  delete t[v]
-                  return
-                }
-              }
+        const f = this.waiting['error']
+        console.error('ws error', err)
+        if (f) {
+          // 此事件已被锁定
+          for (const v in f) {
+            // 事件被触发
+            if (f[v](err)) {
+              delete f[v]
+              this.waiting['error'] = f
+              return
             }
           }
-          return this.event
-            .get(type)
-            ?.forEach(
-              (i: undefined | Processor): void => void (i ? i(err) : null)
-            )
         }
-        console.error('ws error', err)
+        this.event['error']?.forEach(
+          (i?: Processor<'error'>): void => void (i ? i(err) : null)
+        )
       },
       close: obj => {
-        const type = 'close'
-        if (this.event.has(type)) {
-          if (this.waiting.has(type)) {
-            const t = this.waiting.get(type)
-            if (t && t.length > 0) {
-              // 此事件已被锁定
-              for (const v in t) {
-                // 事件被触发
-                if (t[v](obj)) {
-                  delete t[v]
-                  return
-                }
-              }
+        const f = this.waiting['close']
+        console.log('ws close', obj)
+        if (f) {
+          // 此事件已被锁定
+          for (const v in f) {
+            // 事件被触发
+            if (f[v](obj)) {
+              delete f[v]
+              this.waiting['close'] = f
+              return
             }
           }
-          return this.event
-            .get(type)
-            ?.forEach(
-              (i: undefined | Processor): void => void (i ? i(obj) : null)
-            )
         }
-        console.log('ws close', obj)
+        return this.event['close']?.forEach(
+          (i: undefined | Processor<'close'>): void => void (i ? i(obj) : null)
+        )
       },
       unexpectedResponse: obj => {
-        const type = 'unexpected-response'
-        if (this.event.has(type)) {
-          if (this.waiting.has(type)) {
-            const t = this.waiting.get(type)
-            if (t && t.length > 0) {
-              // 此事件已被锁定
-              for (const v in t) {
-                // 事件被触发
-                if (t[v](obj)) {
-                  delete t[v]
-                  return
-                }
-              }
+        const f = this.waiting['unexpected-response']
+        console.error('ws unexpectedResponse', obj)
+        if (f) {
+          // 此事件已被锁定
+          for (const v in f) {
+            // 事件被触发
+            if (f[v](obj)) {
+              delete f[v]
+              this.waiting['unexpected-response'] = f
+              return
             }
           }
-          return this.event
-            .get(type)
-            ?.forEach(
-              (i: undefined | Processor): void => void (i ? i(obj) : null)
-            )
         }
-        console.error('ws unexpectedResponse', obj)
+        return this.event['unexpected-response']?.forEach(
+          (i: undefined | Processor<'unexpected-response'>): void =>
+            void (i ? i(obj) : null)
+        )
       }
     })
   }
@@ -208,31 +194,26 @@ export class Bot {
    * @param type 事件类型。
    * @param matcher 匹配器。当匹配器返回true时才会回传data。
    */
-  wait(type: EventType, matcher: (data: unknown) => boolean): Promise<unknown>
   wait<T extends EventType>(
     type: T,
-    matcher: (data: EventArg<T>) => boolean
-  ): Promise<EventArg<T>>
-  wait(
-    type: EventType,
-    matcher: (data: EventArg<null>) => boolean
-  ): Promise<EventArg<null>> {
+    matcher: Matcher<T>
+  ): Promise<EventArg<T>> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('wait 请先调用 open，建立一个会话')
     }
-    return new Promise<unknown>(resolve => {
-      const resolver = (data: unknown): boolean => {
+    return new Promise<EventArg<T>>(resolve => {
+      const resolver = ((data: EventArg<T>): boolean => {
         if (matcher(data)) {
           resolve(data)
           return true
         }
         return false
-      }
-      if (this.waiting.has(type)) {
-        this.waiting.get(type)?.push(resolver)
+      }) as Matcher<EventType>
+      if (this.waiting[type]) {
+        this.waiting[type]?.push(resolver)
       } else {
-        this.waiting.set(type, [resolver])
+        this.waiting[type] = [resolver]
       }
     })
   }
@@ -251,9 +232,7 @@ export class Bot {
     // 释放会话
     await _releaseSession({ httpUrl, sessionKey, qq: qq })
     // 初始化对象状态
-    if (!keepProcessor) {
-      this.event = new Map()
-    }
+    if (!keepProcessor) this.off()
     this.conf = undefined
     this.ws = undefined
   }
@@ -279,53 +258,15 @@ export class Bot {
    * @param option.message 必选，Message 实例或 MessageType 数组
    * @returns messageId
    */
-  async send(
-    type: 'group',
-    {
-      qq,
-      quote,
-      message
-    }: {
-      qq: GroupID
-      quote?: number
-      message: MessageBase[]
-    }
-  ): Promise<number>
-  async send(
-    type: 'friend',
-    {
-      qq,
-      quote,
-      message
-    }: {
-      qq: UserID
-      quote?: number
-      message: MessageBase[]
-    }
-  ): Promise<number>
+  async send(type: 'group', option: SendOption<GroupID>): Promise<number>
+  async send(type: 'friend', option: SendOption<UserID>): Promise<number>
   async send(
     type: 'temp',
-    {
-      qq,
-      quote,
-      message
-    }: {
-      qq: UserID | MemberID
-      quote?: number
-      message: MessageBase[]
-    }
+    option: SendOption<UserID | MemberID>
   ): Promise<number>
   async send(
     type: 'group' | 'friend' | 'temp',
-    {
-      qq,
-      quote,
-      message
-    }: {
-      qq: UserID | GroupID | MemberID
-      quote?: number
-      message: MessageBase[]
-    }
+    option: SendOption<UserID | GroupID | MemberID>
   ): Promise<number> {
     // 检查对象状态
     if (!this.conf) {
@@ -335,43 +276,33 @@ export class Bot {
     const { httpUrl, sessionKey } = this.conf
     // 根据 temp、friend、group 参数的情况依次调用
     if (type == 'temp') {
-      if (typeof qq == 'number') {
+      if (option.qq instanceof MemberID) {
         return await _sendTempMessage({
           httpUrl,
           sessionKey,
-          qq,
-          quote,
-          messageChain: message
+          qq: option.qq.qq,
+          group: option.qq.group,
+          quote: option.quote,
+          messageChain: option.message
         })
       }
       return await _sendTempMessage({
         httpUrl,
         sessionKey,
-        qq: qq.qq,
-        group: qq.group,
-        quote,
-        messageChain: message
+        qq: option.qq,
+        quote: option.quote,
+        messageChain: option.message
       })
-    } else if (type == 'friend') {
-      if (typeof qq == 'number') {
-        return await _sendFriendMessage({
-          httpUrl,
-          sessionKey,
-          target: qq,
-          quote,
-          messageChain: message
-        })
-      } else throw new Error('friend 不允许使用上下文')
     } else {
-      if (typeof qq == 'number') {
-        return await _sendGroupMessage({
-          httpUrl,
-          sessionKey,
-          target: qq,
-          quote,
-          messageChain: message
-        })
-      } else throw new Error('group 不允许使用上下文')
+      if (option.qq instanceof MemberID)
+        throw new Error(`${type} 不允许使用上下文`)
+      return await (type == 'friend' ? _sendFriendMessage : _sendGroupMessage)({
+        httpUrl,
+        sessionKey,
+        target: option.qq,
+        quote: option.quote,
+        messageChain: option.message
+      })
     }
   }
   /**
@@ -379,30 +310,28 @@ export class Bot {
    * mirai-api-http-v1.10.1 feature
    * @param qq 可以是好友qq号也可以是上下文
    */
-  async nudge(qq: UserID | MemberID) {
+  async nudge(qq: UserID | MemberID): Promise<void> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('nudge 请先调用 open，建立一个会话')
     }
     // 需要使用的参数
     const { httpUrl, sessionKey } = this.conf
-    if (typeof qq == 'number') {
-      // 发给群成员
-      await _sendNudge({
-        httpUrl,
-        sessionKey,
-        target: qq,
-        subject: qq,
-        kind: 'Group'
-      })
-    } else {
-      // 发给好友
+    if (qq instanceof MemberID) {
       await _sendNudge({
         httpUrl,
         sessionKey,
         target: qq.qq,
         subject: qq.group,
         kind: 'Friend'
+      })
+    } else {
+      await _sendNudge({
+        httpUrl,
+        sessionKey,
+        target: qq,
+        subject: qq,
+        kind: 'Group'
       })
     }
   }
@@ -411,33 +340,26 @@ export class Bot {
    * @param type 事件类型。
    * @param value 事件参数。
    */
-  async dispatch(type: EventType, value: EventArg<null>): Promise<void>
   async dispatch<T extends EventType>(
     type: T,
     value: EventArg<T>
-  ): Promise<void>
-  async dispatch(type: EventType, value: EventArg<null>): Promise<void> {
+  ): Promise<void> {
     // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
-    if (this.event.has(type)) {
-      if (this.waiting.has(type)) {
-        const t = this.waiting.get(type)
-        if (t && t.length > 0) {
-          // 此事件已被锁定
-          for (const v in t) {
-            // 事件被触发
-            if (t[v](value)) {
-              delete t[v]
-              return
-            }
-          }
+    const f = this.waiting[type as EventType]
+    if (f) {
+      // 此事件已被锁定
+      for (const v in f) {
+        // 事件被触发
+        if (f[v](value)) {
+          delete f[v]
+          this.waiting[type] = f
+          return
         }
       }
-      this.event
-        .get(type)
-        ?.forEach(
-          (i: undefined | Processor): void => void (i ? i(value) : null)
-        )
     }
+    this.event[type]?.forEach(
+      (i: undefined | Processor<T>): void => void (i ? i(value) : null)
+    )
   }
   /**
    * 添加一个事件处理器
@@ -446,31 +368,24 @@ export class Bot {
    * @param callback  必选，回调函数
    * @returns 事件处理器的标识，用于移除该处理器
    */
-  on(type: EventType, callback: Processor): EventIndex
-  on<T extends EventType>(type: T, callback: Processor<T>): EventIndex
-  on(type: EventType, callback: Processor): EventIndex {
+  on<T extends EventType>(type: T, callback: Processor<T>): EventIndex<T> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('on 请先调用 open，建立一个会话')
     }
-    if (!this.event.has(type)) {
-      this.event.set(type, [])
-    }
+    this.event[type] || (this.event[type] = [])
     // 生成EventID用于标识。
-    const t = this.event.get(type)
-    if (t) {
-      let i = t.indexOf(undefined)
-      if (i == -1) {
-        t.push(callback)
-        i = t.length - 1
-      } else {
-        t[i] = callback
-      }
-      this.event.set(type, t)
-      return i
+    let t = this.event[type]
+    if (!t) t = []
+    let i = t.indexOf(undefined)
+    if (i == -1) {
+      t.push(callback as Processor<EventType>)
+      i = t.length - 1
     } else {
-      return -1
+      t[i] = callback as Processor<EventType>
     }
+    this.event[type] = t
+    return new EventIndex<T>({ type, index: i })
   }
   /**
    * 添加一个一次性事件处理器，回调一次后自动移除
@@ -480,22 +395,19 @@ export class Bot {
    *                             当为 true 时，只有开发者的处理器结束后才会移除该处理器
    *                             当为 false 时，即使消息被拦截，也会移除该处理器
    */
-  one(type: EventType, callback: Processor, strict?: boolean): void
   one<T extends EventType>(
     type: T,
     callback: Processor<T>,
-    strict?: boolean
-  ): void
-  one(type: EventType, callback: Processor, strict = false): void {
+    strict = false
+  ): void {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('on 请先调用 open，建立一个会话')
     }
-    if (!this.event.has(type)) {
-      this.event.set(type, [])
-    }
-    let index: EventIndex = 0
-    const processor: Processor = async (data: unknown): Promise<void> => {
+    let index: EventIndex<T> = new EventIndex<T>({ type, index: 0 })
+    const processor: Processor<T> = async (
+      data: EventArg<T>
+    ): Promise<void> => {
       if (strict) {
         // 严格检测回调
         // 当开发者的处理器结束后才移除该处理器，这里等待异步回调
@@ -505,7 +417,7 @@ export class Bot {
         // 调用开发者提供的回调
         callback(data)
       }
-      this.off(type, index)
+      this.off(index)
     }
     index = this.on(type, processor)
   }
@@ -517,46 +429,36 @@ export class Bot {
    * 移除type下的所有处理器
    * @param type 必选，事件类型
    */
-  off(type: EventType): void
+  off<T extends EventType>(type: T): void
   /**
-   * 移除type下的一个事件处理器
-   * @param type 必选，事件类型
+   * 移除handle指定的事件处理器
    * @param handle 事件处理器标识，由 on 方法返回。
    */
-  off(type: EventType, handle: EventIndex): void
+  off<T extends EventType>(handle: EventIndex<T>): void
   /**
-   * 移除type下的多个个事件处理器
-   * @param type 必选，事件类型
+   * 移除多个handle指定的事件处理器
    * @param handle 事件处理器标识数组，由多个 on 方法的返回值拼接而成。
    */
-  off(type: EventType, handle: EventIndex[]): void
-  off(type?: EventType, handle?: EventIndex | EventIndex[]): void {
+  off(handle: EventIndex<EventType>[]): void
+  off(
+    option?: EventType | EventIndex<EventType> | EventIndex<EventType>[]
+  ): void {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('off 请先调用 open，建立一个会话')
     }
-    if (type) {
-      if (handle) {
-        const t = this.event.get(type)
+    if (option) {
+      if (option instanceof EventIndex) {
+        const t = this.event[option.type]
         if (!t) return
         // 从 field eventProcessorMap 中移除 handle 指定的事件处理器
-        if (handle instanceof Array) {
-          // 可迭代
-          handle.forEach((hd: EventIndex) => {
-            if (t.length > hd) t[hd] = undefined
-          })
-        } else {
-          // 不可迭代，认为是单个标识
-          if (t.length > handle) t[handle] = undefined
-        }
-        this.event.set(type, t)
-      } else {
-        // 未提供 handle，移除所有
-        this.event.set(type, [])
-      }
-    } else {
-      this.event = new Map()
-    }
+        if (t.length > option.index) t[option.index] = undefined
+        this.event[option.type] = t
+      } else if (option instanceof Array) {
+        // 可迭代
+        option.forEach((hd: EventIndex<EventType>) => this.off(hd))
+      } else this.event[option] = [] // 只提供type，移除所有
+    } else this.event = {}
   }
   /**
    * 撤回由 messageId 确定的消息
@@ -630,7 +532,7 @@ export class Bot {
    * 获取好友列表
    * @returns 好友列表。
    */
-  async friend(): Promise<User[]> {
+  async listFriend(): Promise<User[]> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('friend 请先调用 open，建立一个会话')
@@ -642,7 +544,7 @@ export class Bot {
    * 获取群列表
    * @returns 群列表。
    */
-  async group(): Promise<Group[]> {
+  async listGroup(): Promise<Group[]> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('group 请先调用 open，建立一个会话')
@@ -656,7 +558,7 @@ export class Bot {
    * @param group 必选，欲获取成员列表的群号
    * @returns 群员列表。
    */
-  async member(group: GroupID): Promise<Member[]> {
+  async listMember(group: GroupID): Promise<Member[]> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('member 请先调用 open，建立一个会话')
@@ -674,7 +576,7 @@ export class Bot {
    * @param info 上下文对象。
    * @returns 群成员设置
    */
-  async memberInfo(info: MemberID): Promise<Member> {
+  async getMember(info: MemberID): Promise<Member> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('memberInfo 请先调用 open，建立一个会话')
@@ -708,29 +610,25 @@ export class Bot {
     }
     const { httpUrl, sessionKey } = this.conf
     // 检查参数
-    if (type == 'member') {
-      if (typeof target == 'number' || !target) {
-        throw new Error('getUserProfile 参数被错误指定')
-      }
+    if (type == 'member' && target instanceof MemberID) {
       return await _getMemberProfile({
         httpUrl,
         sessionKey,
         target: target.group,
         memberId: target.qq
       })
-    } else if (type == 'bot') {
-      if (target) {
-        throw new Error('getUserProfile 参数被错误指定')
-      }
+    } else if (type == 'bot' && !target) {
       return await _getBotProfile({ httpUrl, sessionKey })
-    } else {
-      if (typeof target != 'number') {
-        throw new Error('getUserProfile 参数被错误指定')
-      }
-      return type == 'friend'
-        ? await _getFriendProfile({ httpUrl, sessionKey, target })
-        : await _getUserProfile({ httpUrl, sessionKey, target })
-    }
+    } else if (
+      (type == 'friend' || type == 'user') &&
+      typeof target == 'number'
+    ) {
+      return await (type == 'friend' ? _getFriendProfile : _getUserProfile)({
+        httpUrl,
+        sessionKey,
+        target
+      })
+    } else throw new Error('getUserProfile 参数被错误指定')
   }
   /**
    * 设置群成员信息
@@ -749,10 +647,9 @@ export class Bot {
     if (!this.conf) {
       throw new Error('setMember 请先调用 open，建立一个会话')
     }
-
     // setMemberInfo
     const { httpUrl, sessionKey } = this.conf
-    if (setting.memberName != undefined || setting.specialTitle != undefined) {
+    if (setting.memberName || setting.specialTitle) {
       await _setMemberInfo({
         httpUrl,
         sessionKey,
@@ -765,7 +662,7 @@ export class Bot {
       })
     }
     // setPermission
-    if (setting.permission != undefined) {
+    if (setting.permission) {
       await _setMemberPerm({
         httpUrl,
         sessionKey,
@@ -799,9 +696,7 @@ export class Bot {
         size: 10
       })).length > 0
     ) {
-      for (const anno of annoList) {
-        yield anno
-      }
+      for (const anno of annoList) yield anno
       // 获取下一页
       offset += 10
     }
@@ -837,7 +732,7 @@ export class Bot {
    * @param group 必选，群号
    * @param id 必选，公告 id
    */
-  async deleteAnno(group: GroupID, id: string) {
+  async deleteAnno(group: GroupID, id: string): Promise<void> {
     // 检查对象状态
     if (!this.conf) {
       throw new Error('deleteAnno 请先调用 open，建立一个会话')
@@ -857,11 +752,7 @@ export class Bot {
       throw new Error('mute 请先调用 open，建立一个会话')
     }
     const { httpUrl, sessionKey } = this.conf
-    if (typeof qq == 'number') {
-      if (time) throw new Error('mute 全体禁言时不可以指定时间')
-      await _muteAll({ httpUrl, sessionKey, target: qq })
-    } else {
-      if (!time) throw new Error('mute 个体禁言时必须指定时间')
+    if (qq instanceof MemberID && time) {
       await _mute({
         httpUrl,
         sessionKey,
@@ -869,7 +760,9 @@ export class Bot {
         memberId: qq.qq,
         time
       })
-    }
+    } else if (typeof qq == 'number' && !time) {
+      await _muteAll({ httpUrl, sessionKey, target: qq })
+    } else throw new Error('mute 参数错误')
   }
   /**
    * 解除禁言
@@ -881,11 +774,9 @@ export class Bot {
       throw new Error('unmute 请先调用 open，建立一个会话')
     }
     const { httpUrl, sessionKey } = this.conf
-    if (typeof qq == 'number') {
-      await _unmuteAll({ httpUrl, sessionKey, target: qq })
-    } else {
+    if (qq instanceof MemberID)
       await _unmute({ httpUrl, sessionKey, target: qq.group, memberId: qq.qq })
-    }
+    else await _unmuteAll({ httpUrl, sessionKey, target: qq })
   }
   /**
    * 移除群成员，好友或群
@@ -893,7 +784,6 @@ export class Bot {
    * @param option         选项
    * @param option.qq      要移除的目标
    * @param option.message 可选，移除信息，默认为空串 ""，仅在'member'情况下可以指定
-   * @returns {void}
    */
   async remove(
     type: 'friend' | 'group' | 'member',
@@ -910,16 +800,7 @@ export class Bot {
       throw new Error('remove 请先调用 open，建立一个会话')
     }
     const { httpUrl, sessionKey } = this.conf
-    if (type == 'friend') {
-      if (typeof qq != 'number') throw new Error('remove 需要一个好友qq号')
-      if (message) throw new Error('remove 不支持指定message')
-      await _removeFriend({ httpUrl, sessionKey, target: qq })
-    } else if (type == 'group') {
-      if (typeof qq != 'number') throw new Error('remove 需要一个群聊qq号')
-      if (message) throw new Error('remove 不支持指定message')
-      await _quitGroup({ httpUrl, sessionKey, target: qq })
-    } else {
-      if (typeof qq == 'number') throw new Error('remove 需要一个成员信息')
+    if (type == 'member' && qq instanceof MemberID) {
       await _removeMember({
         httpUrl,
         sessionKey,
@@ -927,7 +808,13 @@ export class Bot {
         memberId: qq.qq,
         msg: message ? message : ''
       })
-    }
+    } else if (typeof qq == 'number' && !message) {
+      await (type == 'friend' ? _removeFriend : _quitGroup)({
+        httpUrl,
+        sessionKey,
+        target: qq
+      })
+    } else throw new Error('remove 参数错误')
   }
   /**
    * 获取群信息
@@ -1036,7 +923,7 @@ export class Bot {
         event,
         option
       })
-    } else if (event instanceof BotInvitedJoinGroupRequestEvent) {
+    } else {
       if (option.action != 'accept' && option.action != 'refuse')
         throw new Error('action 不允许此动作')
       await _botInvited({
