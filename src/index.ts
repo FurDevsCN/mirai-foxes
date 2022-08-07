@@ -8,3 +8,4 @@ import * as File from './File'
 import * as Error from './Error'
 import { waitFor } from './Waiter'
 export { Bot, File, Event, Message, Base, Middleware, Error, waitFor }
+export default { Bot, File, Event, Message, Base, Middleware, Error, waitFor }

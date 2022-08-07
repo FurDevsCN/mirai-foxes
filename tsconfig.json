@@ -22,7 +22,6 @@
     "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
     "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
     /* Module Resolution Options */
-    "resolveJsonModule": true,
     "moduleResolution": "node",
     "types": ["node"],
     "esModuleInterop": true,
@@ -32,7 +31,7 @@
       //   "./types/*"
       // ]
     },
-    "target": "es5",
+    "target": "ES5",
     "outDir": "dist",
     "declaration": true
   },
