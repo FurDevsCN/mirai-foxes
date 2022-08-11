@@ -101,10 +101,11 @@
      // 监听事件
      bot.on(
        'FriendMessage', // 好友消息
-       new Middleware() // 中间件
-         .cmd() // 命令解析
-         .userFilter([0]) // 用户过滤，改成你的QQ号
-         .cmdMatch('hello') // 命令匹配
+       new Middleware.Middleware() // 中间件
+         .parser() // 命令解析
+         .user() // 用户过滤
+         .filter([Middleware.userFilter([0])]) // 改成你的QQ号
+         .matcher([Middleware.cmdMatch('hello')]) // 命令匹配
          .done(async data => {
            // 发送消息
            await bot.send('friend', {

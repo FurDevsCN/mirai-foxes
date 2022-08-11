@@ -10,13 +10,14 @@ mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代�
 适合那些觉得 mirai-ts 不够顺手又无法忍受 Mirai-js 类型注释不足的 Devs。同样也适合 Mirai-js 用户！
 
 ```typescript
-import { Bot, Message, Event } from 'mirai-foxes'
+import { Middleware, Bot, Message, Event } from 'mirai-foxes'
 bot.on(
   'FriendMessage',
-  new Middleware()
-    .cmd()
-    .prefixMatch('hello')
-    .userFilter([0])
+  new Middleware.Middleware()
+    .parser()
+    .user()
+    .filter([Middleware.userFilter([0])])
+    .matcher([Middleware.cmdMatch('hello')])
     .done(async (data: Event.FriendMessage) => {
       await bot.send('friend', {
         qq: data.sender.id,
