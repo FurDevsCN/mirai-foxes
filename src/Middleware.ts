@@ -1,118 +1,169 @@
 import { GroupID, UserID } from './Base'
-import { EventArg, FriendMessage, GroupMessage, Processor } from './Event'
+import { EventArg, FriendMessage, GroupMessage } from './Event'
+import { Processor } from './Bot'
 import { At, MessageBase, MessageChain, MessageType, Plain } from './Message'
 class GroupFilter {
-  private _filt: GroupID[] = []
-  private _memberfilt: Map<GroupID, UserID[]> = new Map()
-  groupFilter(id: GroupID[]): this {
-    this._filt = id
-    return this
-  }
-  memberFilter(id: Map<GroupID, UserID[]>): this {
-    this._memberfilt = id
+  private fn: ((data: GroupMessage) => boolean)[] = []
+  next(fn: ((data: GroupMessage) => boolean)[]): this {
+    this.fn.push(...fn)
     return this
   }
   done(fn: Processor<'GroupMessage'>): Processor<'GroupMessage'> {
     return async (data: GroupMessage): Promise<void> => {
-      if (this._filt.includes(data.sender.group.id)) {
-        if (this._memberfilt.has(data.sender.group.id)) {
-          const q = this._memberfilt.get(data.sender.group.id)
-          if (q && !q.includes(data.sender.id)) return
-        }
-        await fn(data)
-      }
+      if (this.fn.every(fn => fn(data))) await fn(data)
     }
   }
 }
+/**
+ * 设定群聊过滤器
+ * @param id 群号数组。
+ * @returns 特化中间件
+ */
+export function groupFilter(id: GroupID[]): (data: GroupMessage) => boolean {
+  return (data: GroupMessage): boolean => {
+    return id.includes(data.sender.group.id)
+  }
+}
+/**
+ * 设定成员过滤器
+ * @param id 群号->成员QQ号的映射
+ * @returns 特化中间件
+ */
+export function memberFilter(
+  id: Map<GroupID, UserID[]>
+): (data: GroupMessage) => boolean {
+  return (data: GroupMessage): boolean => {
+    if (id.has(data.sender.group.id)) {
+      const q = id.get(data.sender.group.id)
+      if (q && !q.includes(data.sender.id)) return false
+    }
+    return true
+  }
+}
 class UserFilter {
-  private _filt: UserID[] = []
-  userFilter(id: UserID[]): this {
-    this._filt = id
+  private fn: ((data: FriendMessage) => boolean)[] = []
+  next(fn: ((data: FriendMessage) => boolean)[]): this {
+    this.fn.push(...fn)
     return this
   }
   done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'> {
     return async (data: FriendMessage): Promise<void> => {
-      if (this._filt.includes(data.sender.id)) await fn(data)
+      if (this.fn.every(fn => fn(data))) await fn(data)
     }
   }
+}
+/**
+ * 设定用户过滤器
+ * @param id 群号数组。
+ * @returns 特化中间件
+ */
+export function userFilter(id: UserID[]): (data: FriendMessage) => boolean {
+  return (data: FriendMessage): boolean => {
+    if (id.includes(data.sender.id)) return true
+    return false
+  }
+}
+function chain2str(v: MessageChain): string {
+  let m = ''
+  for (const d of v.slice(1)) {
+    if (d.type == 'Plain') m += (d as Plain).text
+    else m += `[${d.type}]`
+  }
+  return m
 }
 /**
  * 消息匹配处理器
  */
 class Matcher {
-  private _matchers: ((val: MessageChain) => boolean)[] = []
-  private chain2str(v: MessageChain): string {
-    let m = ''
-    for (const d of v.slice(1)) {
-      if (d.type == 'Plain') m += (d as Plain).text
-      else m += `[${d.type}]`
-    }
-    return m
-  }
-  keywordMatch(val: string): this {
-    this._matchers.push((v: MessageChain): boolean =>
-      this.chain2str(v).includes(val)
-    )
-    return this
-  }
-  prefixMatch(val: string): this {
-    this._matchers.push((v: MessageChain): boolean =>
-      this.chain2str(v).startsWith(val)
-    )
-    return this
-  }
-  suffixMatch(val: string): this {
-    this._matchers.push((v: MessageChain): boolean =>
-      this.chain2str(v).endsWith(val)
-    )
-    return this
-  }
-  contentMatch(val: MessageBase[]): this {
-    this._matchers.push((v: MessageChain): boolean => v.slice(1) == val)
-    return this
-  }
-  templateMatch(type: MessageType[]): this {
-    this._matchers.push(
-      (v: MessageChain): boolean =>
-        v.length - 1 == type.length &&
-        v
-          .slice(1)
-          .every(
-            (value: MessageBase, index: number): boolean =>
-              value.type == type[index]
-          )
-    )
-    return this
-  }
-  regexMatch(reg: RegExp): this {
-    this._matchers.push(
-      (v: MessageChain): boolean => this.chain2str(v).match(reg) != undefined
-    )
-    return this
-  }
-  mention(qq: UserID): this {
-    this._matchers.push(
-      (v: MessageChain): boolean =>
-        !v
-          .slice(1)
-          .every(
-            (x: MessageBase) => !(x.type == 'At' && (x as At).target == qq)
-          )
-    )
+  private fn: ((data: MessageChain) => boolean)[] = []
+  next(fn: ((data: MessageChain) => boolean)[]): this {
+    this.fn.push(...fn)
     return this
   }
   done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
     fn: Processor<T>
   ): Processor<T> {
     return async (data: EventArg<T>): Promise<void> => {
-      if (
-        this._matchers.every((v: (data: MessageChain) => boolean) =>
-          v(data.messageChain)
-        )
-      )
-        await fn(data)
+      if (this.fn.every(fn => fn(data.messageChain))) await fn(data)
     }
   }
+}
+/**
+ * 关键字（全文/模糊）匹配。
+ * @param val 内容。
+ * @returns 装饰器
+ */
+export function keywordMatch(val: string): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean => chain2str(v).includes(val)
+}
+/**
+ * 命令（除Source外第一个元素，且必须为文本）匹配。（推荐搭配命令解释器）
+ * @param val 内容。
+ * @returns 装饰器
+ */
+export function cmdMatch(val: string): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean =>
+    v[1].type == 'Plain' && (v[1] as Plain).text == val
+}
+/**
+ * 文本前缀匹配。
+ * @param val 内容。
+ * @returns 装饰器
+ */
+export function prefixMatch(val: string): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean => chain2str(v).startsWith(val)
+}
+/**
+ * 文本后缀匹配。
+ * @param val 内容。
+ * @returns 装饰器
+ */
+export function suffixMatch(val: string): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean => chain2str(v).endsWith(val)
+}
+/**
+ * 内容完全匹配。
+ * @param val 正则表达式对象。
+ * @returns 装饰器
+ */
+export function contentMatch(val: MessageBase[]): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean => v.slice(1) == val
+}
+/**
+ * 消息格式匹配。
+ * @param type
+ * @returns 装饰器
+ */
+export function templateMatch(
+  type: MessageType[]
+): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean =>
+    v.length - 1 == type.length &&
+    v
+      .slice(1)
+      .every(
+        (value: MessageBase, index: number): boolean =>
+          value.type == type[index]
+      )
+}
+/**
+ * 文字正则匹配。
+ * @param reg 正则表达式对象。
+ * @returns this
+ */
+export function regexMatch(reg: RegExp): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean => chain2str(v).match(reg) != undefined
+}
+/**
+ * 是否提到某人。
+ * @param qq 这个人的qq号。
+ * @returns this
+ */
+export function mention(qq: UserID): (v: MessageChain) => boolean {
+  return (v: MessageChain): boolean =>
+    !v
+      .slice(1)
+      .every((x: MessageBase) => !(x.type == 'At' && (x as At).target == qq))
 }
 /**
  * 命令处理器
@@ -138,7 +189,7 @@ class Parser {
     }
     return f
   }
-  cmd(): this {
+  next(): this {
     this.enable = true
     return this
   }
@@ -152,114 +203,50 @@ class Parser {
   }
 }
 class MiddlewareBase {
-  private matcher: Matcher
-  private parser: Parser
+  private _matcher: Matcher
+  private _parser: Parser
   /**
-   * 关键字（全文/模糊）匹配。
-   * @param val 内容。
-   * @returns this
+   * 设定匹配装饰器。
+   * @param v 匹配装饰器。
    */
-  keywordMatch(val: string): this {
-    this.matcher.keywordMatch(val)
-    return this
-  }
-  /**
-   * 文本前缀匹配。
-   * @param val 内容。
-   * @returns this
-   */
-  prefixMatch(val: string): this {
-    this.matcher.prefixMatch(val)
-    return this
-  }
-  /**
-   * 文本后缀匹配。
-   * @param val 内容。
-   * @returns this
-   */
-  suffixMatch(val: string): this {
-    this.matcher.suffixMatch(val)
-    return this
-  }
-  /**
-   * 内容完全匹配。
-   * @param reg 正则表达式对象。
-   * @returns this
-   */
-  contentMatch(reg: MessageBase[]): this {
-    this.matcher.contentMatch(reg)
-    return this
-  }
-  /**
-   * 消息格式匹配。
-   * @param type
-   * @returns this
-   */
-  templateMatch(type: MessageType[]): this {
-    this.matcher.templateMatch(type)
-    return this
-  }
-  /**
-   * 文字正则匹配。
-   * @param reg 正则表达式对象。
-   * @returns this
-   */
-  regexMatch(reg: RegExp): this {
-    this.matcher.regexMatch(reg)
-    return this
-  }
-  /**
-   * 是否提到某人。
-   * @param qq 这个人的qq号。
-   * @returns this
-   */
-  mention(qq: UserID): this {
-    this.matcher.mention(qq)
+  matcher(v: ((v: MessageChain) => boolean)[]): this {
+    this._matcher.next(v)
     return this
   }
   /**
    * 启用命令解释器
    * @returns this
    */
-  cmd(): this {
-    this.parser.cmd()
+  parser(): this {
+    this._parser.next()
     return this
   }
   static done<
     T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'
   >(base: MiddlewareBase, fn: Processor<T>): Processor<T> {
-    return base.parser.done(
-      base.matcher.done(async (data: EventArg<T>): Promise<void> => {
+    return base._parser.done(
+      base._matcher.done(async (data: EventArg<T>): Promise<void> => {
         await fn(data)
       })
     )
   }
   constructor(n?: MiddlewareBase) {
-    if (n) [this.matcher, this.parser] = [n.matcher, n.parser]
-    else [this.matcher, this.parser] = [new Matcher(), new Parser()]
+    if (n) [this._matcher, this._parser] = [n._matcher, n._parser]
+    else [this._matcher, this._parser] = [new Matcher(), new Parser()]
   }
 }
 /**
  * 群聊匹配中间件。
  */
 class GroupMiddleware extends MiddlewareBase {
-  private filter: GroupFilter = new GroupFilter()
+  private _filter: GroupFilter = new GroupFilter()
   /**
-   * 设定群聊过滤器
-   * @param id 群号数组。
+   * 设定过滤装饰器
+   * @param v 装饰器
    * @returns this
    */
-  groupFilter(id: GroupID[]): this {
-    this.filter.groupFilter(id)
-    return this
-  }
-  /**
-   * 设定成员过滤器
-   * @param id 群号->成员QQ号的映射
-   * @returns this
-   */
-  memberFilter(id: Map<GroupID, UserID[]>): this {
-    this.filter.memberFilter(id)
+  filter(v: ((data: GroupMessage) => boolean)[]): this {
+    this._filter.next(v)
     return this
   }
   /**
@@ -268,22 +255,22 @@ class GroupMiddleware extends MiddlewareBase {
    * @returns 事件处理器
    */
   done(fn: Processor<'GroupMessage'>): Processor<'GroupMessage'> {
-    return MiddlewareBase.done(this, this.filter.done(fn))
+    return MiddlewareBase.done(this, this._filter.done(fn))
   }
   constructor(base: MiddlewareBase, filter: GroupFilter) {
     super(base)
-    this.filter = filter
+    this._filter = filter
   }
 }
 class UserMiddleware extends MiddlewareBase {
-  private filter: UserFilter = new UserFilter()
+  private _filter: UserFilter = new UserFilter()
   /**
-   * 设定用户过滤器
-   * @param id 群号数组。
+   * 设定过滤装饰器
+   * @param v 装饰器
    * @returns this
    */
-  userFilter(id: UserID[]): this {
-    this.filter.userFilter(id)
+  filter(v: ((data: FriendMessage) => boolean)[]): this {
+    this._filter.next(v)
     return this
   }
   /**
@@ -292,37 +279,27 @@ class UserMiddleware extends MiddlewareBase {
    * @returns 事件处理器
    */
   done(fn: Processor<'FriendMessage'>): Processor<'FriendMessage'> {
-    return MiddlewareBase.done(this, this.filter.done(fn))
+    return MiddlewareBase.done(this, this._filter.done(fn))
   }
   constructor(base: MiddlewareBase, filter: UserFilter) {
     super(base)
-    this.filter = filter
+    this._filter = filter
   }
 }
 export class Middleware extends MiddlewareBase {
   /**
-   * 设定群聊过滤器
-   * @param id 群号数组。
-   * @returns 特化中间件
+   * 生成群组过滤器
+   * @returns this
    */
-  groupFilter(id: GroupID[]): GroupMiddleware {
-    return new GroupMiddleware(this, new GroupFilter()).groupFilter(id)
+  group(): GroupMiddleware {
+    return new GroupMiddleware(this, new GroupFilter())
   }
   /**
-   * 设定成员过滤器
-   * @param id 群号->成员QQ号的映射
-   * @returns 特化中间件
+   * 生成用户过滤器
+   * @returns this
    */
-  memberFilter(id: Map<GroupID, UserID[]>): GroupMiddleware {
-    return new GroupMiddleware(this, new GroupFilter()).memberFilter(id)
-  }
-  /**
-   * 设定用户过滤器
-   * @param id 群号数组。
-   * @returns 特化中间件
-   */
-  userFilter(id: UserID[]): UserMiddleware {
-    return new UserMiddleware(this, new UserFilter()).userFilter(id)
+  user(): UserMiddleware {
+    return new UserMiddleware(this, new UserFilter())
   }
   /**
    * 生成事件处理器

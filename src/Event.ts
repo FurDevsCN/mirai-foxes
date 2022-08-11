@@ -2,718 +2,419 @@ import { ClientRequest, IncomingMessage } from 'http'
 import { User, Member, Group, OtherClient, Permission, GroupID } from './Base'
 import { UserID } from './Base'
 import { MessageChain } from './Message'
-export type Content = EventBase
-export class EventBase {
+/** 基本事件 */
+export interface EventBase {
+  /** 类型 */
   readonly type: EventType
-  constructor({ type }: { type: EventType }) {
-    this.type = type
-  }
 }
-export class BotOnlineEvent extends EventBase {
+/** bot上线事件 */
+export interface BotOnlineEvent extends EventBase {
+  readonly type: 'BotOnlineEvent'
+  /** 上线的bot QQ */
   qq: UserID
-  constructor({ qq }: { qq: UserID }) {
-    super({ type: 'BotOnlineEvent' })
-    this.qq = qq
-  }
 }
-export class BotOfflineEventActive extends EventBase {
+/** bot主动下线事件 */
+export interface BotOfflineEventActive extends EventBase {
+  readonly type: 'BotOfflineEventActive'
+  /** 下线的bot QQ */
   qq: UserID
-  constructor({ qq }: { qq: UserID }) {
-    super({ type: 'BotOfflineEventActive' })
-    this.qq = qq
-  }
 }
-export class BotOfflineEventForce extends EventBase {
+/** bot被踢下线事件 */
+export interface BotOfflineEventForce extends EventBase {
+  readonly type: 'BotOfflineEventForce'
+  /** 下线的bot QQ */
   qq: UserID
-  constructor({ qq }: { qq: UserID }) {
-    super({ type: 'BotOfflineEventForce' })
-    this.qq = qq
-  }
 }
-export class BotOfflineEventDropped extends EventBase {
+/** bot和服务器断连事件 */
+export interface BotOfflineEventDropped extends EventBase {
+  readonly type: 'BotOfflineEventDropped'
+  /** 下线的bot QQ */
   qq: UserID
-  constructor({ qq }: { qq: UserID }) {
-    super({ type: 'BotOfflineEventDropped' })
-    this.qq = qq
-  }
 }
-export class BotReloginEvent extends EventBase {
+/** bot重登事件 */
+export interface BotReloginEvent extends EventBase {
+  readonly type: 'BotReloginEvent'
+  /** 重登的bot QQ */
   qq: UserID
-  constructor({ qq }: { qq: UserID }) {
-    super({ type: 'BotReloginEvent' })
-    this.qq = qq
-  }
 }
-export class FriendInputStatusChangedEvent extends EventBase {
+/** 好友输入状态改变事件 */
+export interface FriendInputStatusChangedEvent extends EventBase {
+  readonly type: 'FriendInputStatusChangedEvent'
+  /** 现在的输入状态 */
   inputting: boolean
+  /** 好友信息 */
   friend: User
-  constructor({ friend, inputting }: { inputting: boolean; friend: User }) {
-    super({ type: 'FriendInputStatusChangedEvent' })
-    ;[this.friend, this.inputting] = [friend, inputting]
-  }
 }
-export class FriendNickChangedEvent extends EventBase {
+/** 好友昵称改变事件 */
+export interface FriendNickChangedEvent extends EventBase {
+  readonly type: 'FriendNickChangedEvent'
+  /** 好友信息 */
   friend: User
+  /** 原来的昵称 */
   from: string
+  /** 现在的昵称 */
   to: string
-  constructor({
-    friend,
-    from,
-    to
-  }: {
-    friend: User
-    from: string
-    to: string
-  }) {
-    super({ type: 'FriendNickChangedEvent' })
-    ;[this.friend, this.from, this.to] = [friend, from, to]
-  }
 }
-export class BotGroupPermissionChangeEvent extends EventBase {
+/** Bot 群权限被改变事件 */
+export interface BotGroupPermissionChangeEvent extends EventBase {
+  readonly type: 'BotGroupPermissionChangeEvent'
+  /** 原来的权限 */
   origin: Permission
+  /** 现在的权限 */
   current: Permission
+  /** 群聊信息 */
   group: Group
-  constructor({
-    origin,
-    current,
-    group
-  }: {
-    origin: Permission
-    current: Permission
-    group: Group
-  }) {
-    super({ type: 'BotGroupPermissionChangeEvent' })
-    ;[this.origin, this.current, this.group] = [origin, current, group]
-  }
 }
-export class BotMuteEvent extends EventBase {
+/** Bot 被禁言事件 */
+export interface BotMuteEvent extends EventBase {
+  readonly type: 'BotMuteEvent'
+  /** 时长 */
   durationSeconds: number
+  /** 操作者 */
   operator: Member
-  constructor({
-    durationSeconds,
-    operator
-  }: {
-    durationSeconds: number
-    operator: Member
-  }) {
-    super({ type: 'BotMuteEvent' })
-    ;[this.durationSeconds, this.operator] = [durationSeconds, operator]
-  }
 }
-export class BotUnmuteEvent extends EventBase {
+/** Bot 被解禁事件 */
+export interface BotUnmuteEvent extends EventBase {
+  readonly type: 'BotUnmuteEvent'
+  /** 操作者 */
   operator: Member
-  constructor({ operator }: { operator: Member }) {
-    super({ type: 'BotUnmuteEvent' })
-    this.operator = operator
-  }
 }
-export class BotJoinGroupEvent extends EventBase {
+/** Bot 加入群组事件 */
+export interface BotJoinGroupEvent extends EventBase {
+  readonly type: 'BotJoinGroupEvent'
+  /** 加入的群聊 */
   group: Group
+  /** 邀请者（如果有） */
   invitor: undefined | Member
-  constructor({ group, invitor }: { group: Group; invitor?: Member }) {
-    super({ type: 'BotJoinGroupEvent' })
-    ;[this.group, this.invitor] = [group, invitor]
-  }
 }
-export class BotLeaveEventActive extends EventBase {
+/** Bot 主动退群事件 */
+export interface BotLeaveEventActive extends EventBase {
+  readonly type: 'BotLeaveEventActive'
+  /** 退出的群聊 */
   group: Group
-  constructor({ group }: { group: Group }) {
-    super({ type: 'BotLeaveEventActive' })
-    this.group = group
-  }
 }
-export class BotLeaveEventKick extends EventBase {
+/** Bot 被踢事件 */
+export interface BotLeaveEventKick extends EventBase {
+  readonly type: 'BotLeaveEventKick'
+  /** 被踢出的群聊 */
   group: Group
-  constructor({ group }: { group: Group }) {
-    super({ type: 'BotLeaveEventKick' })
-    this.group = group
-  }
-}
-export class BotLeaveEventDisband extends EventBase {
-  group: Group
+  /** 操作者 */
   operator: Member
-  constructor({ group, operator }: { group: Group; operator: Member }) {
-    super({ type: 'BotLeaveEventDisband' })
-    ;[this.group, this.operator] = [group, operator]
-  }
 }
-export class GroupRecallEvent extends EventBase {
-  authorId: UserID
-  messageId: number
-  time: number
+/** Bot 群聊解散事件 */
+export interface BotLeaveEventDisband extends EventBase {
+  readonly type: 'BotLeaveEventDisband'
+  /** 解散的群聊 */
   group: Group
-  operator: undefined | Member
-  constructor({
-    authorId,
-    messageId,
-    time,
-    group,
-    operator
-  }: {
-    authorId: UserID
-    messageId: number
-    time: number
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupRecallEvent' })
-    ;[this.authorId, this.messageId, this.time, this.group, this.operator] = [
-      authorId,
-      messageId,
-      time,
-      group,
-      operator
-    ]
-  }
+  /** 操作者（一定是群主） */
+  operator: Member
 }
-export class FriendRecallEvent extends EventBase {
+/** 群撤回消息事件 */
+export interface GroupRecallEvent extends EventBase {
+  readonly type: 'GroupRecallEvent'
+  /** 原消息用户ID */
   authorId: UserID
+  /** 撤回消息的messageId */
   messageId: number
+  /** 原消息发送时间 */
   time: number
-  operator: UserID
-  constructor({
-    authorId,
-    messageId,
-    time,
-    operator
-  }: {
-    authorId: UserID
-    messageId: number
-    time: number
-    operator: UserID
-  }) {
-    super({ type: 'FriendRecallEvent' })
-    ;[this.authorId, this.messageId, this.time, this.operator] = [
-      authorId,
-      messageId,
-      time,
-      operator
-    ]
-  }
+  /** 群聊 */
+  group: Group
+  /** 操作者（当没有数据时就是bot干的） */
+  operator: undefined | Member
 }
-export class NudgeEvent extends EventBase {
+/** 好友撤回消息事件 */
+export interface FriendRecallEvent extends EventBase {
+  readonly type: 'FriendRecallEvent'
+  /** 原消息用户ID */
+  authorId: UserID
+  /** 原消息messageId */
+  messageId: number
+  /** 原消息发送时间 */
+  time: number
+  /** 好友QQ或者Bot QQ */
+  operator: UserID
+}
+/** 戳一戳事件 */
+export interface NudgeEvent extends EventBase {
+  readonly type: 'NudgeEvent'
+  /** 发送者ID */
   fromId: UserID
   subject: {
+    /** 群号或者好友qq */
     id: GroupID | UserID
+    /** id类型 */
     kind: 'Group' | 'Friend'
   }
+  /** 动作类型 */
   action: string
+  /** 动作后缀 */
   suffix: string
+  /** 被戳人的QQ */
   target: UserID
-  constructor({
-    fromId,
-    subject,
-    action,
-    suffix,
-    target
-  }: {
-    fromId: UserID
-    subject: {
-      id: GroupID | UserID
-      kind: 'Group' | 'Friend'
-    }
-    action: string
-    suffix: string
-    target: UserID
-  }) {
-    super({ type: 'NudgeEvent' })
-    ;[this.fromId, this.subject, this.action, this.suffix, this.target] = [
-      fromId,
-      subject,
-      action,
-      suffix,
-      target
-    ]
-  }
 }
-export class GroupNameChangeEvent extends EventBase {
+/** 群名变更事件 */
+export interface GroupNameChangeEvent extends EventBase {
+  readonly type: 'GroupNameChangeEvent'
+  /** 原来的群名 */
   origin: string
+  /** 现在的群名 */
   current: string
+  /** 群号 */
   group: Group
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    origin,
-    current,
-    group,
-    operator
-  }: {
-    origin: string
-    current: string
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupNameChangeEvent' })
-    ;[this.origin, this.current, this.group, this.operator] = [
-      origin,
-      current,
-      group,
-      operator
-    ]
-  }
 }
-export class GroupEntranceAnnouncementChangeEvent extends EventBase {
+/** 入群公告变更事件 */
+export interface GroupEntranceAnnouncementChangeEvent extends EventBase {
+  readonly type: 'GroupEntranceAnnouncementChangeEvent'
+  /** 原来的入群公告 */
   origin: string
+  /** 现在的入群公告 */
   current: string
+  /** 群聊 */
   group: Group
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    origin,
-    current,
-    group,
-    operator
-  }: {
-    origin: string
-    current: string
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupEntranceAnnouncementChangeEvent' })
-    ;[this.origin, this.current, this.group, this.operator] = [
-      origin,
-      current,
-      group,
-      operator
-    ]
-  }
 }
-export class GroupMuteAllEvent extends EventBase {
+/** 全员禁言事件 */
+export interface GroupMuteAllEvent extends EventBase {
+  readonly type: 'GroupMuteAllEvent'
+  /** 原状态 */
   origin: boolean
+  /** 现在的状态 */
   current: boolean
+  /** 群聊 */
   group: Group
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    origin,
-    current,
-    group,
-    operator
-  }: {
-    origin: boolean
-    current: boolean
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupMuteAllEvent' })
-    ;[this.origin, this.current, this.group, this.operator] = [
-      origin,
-      current,
-      group,
-      operator
-    ]
-  }
 }
-export class GroupAllowAnonymousChatEvent extends EventBase {
+/** 群聊允许匿名聊天事件 */
+export interface GroupAllowAnonymousChatEvent extends EventBase {
+  readonly type: 'GroupAllowAnonymousChatEvent'
+  /** 原状态 */
   origin: boolean
+  /** 现在的状态 */
   current: boolean
+  /** 群聊 */
   group: Group
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    origin,
-    current,
-    group,
-    operator
-  }: {
-    origin: boolean
-    current: boolean
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupAllowAnonymousChatEvent' })
-    ;[this.origin, this.current, this.group, this.operator] = [
-      origin,
-      current,
-      group,
-      operator
-    ]
-  }
 }
-export class GroupAllowConfessTalkEvent extends EventBase {
+/** 群聊允许坦白说事件 */
+export interface GroupAllowConfessTalkEvent extends EventBase {
+  readonly type: 'GroupAllowConfessTalkEvent'
+  /** 原状态 */
   origin: boolean
+  /** 现在的状态 */
   current: boolean
+  /** 群聊 */
   group: Group
+  /** 是不是Bot干的 */
   isByBot: boolean
-  constructor({
-    origin,
-    current,
-    group,
-    isByBot
-  }: {
-    origin: boolean
-    current: boolean
-    group: Group
-    isByBot: boolean
-  }) {
-    super({ type: 'GroupAllowConfessTalkEvent' })
-    ;[this.origin, this.current, this.group, this.isByBot] = [
-      origin,
-      current,
-      group,
-      isByBot
-    ]
-  }
 }
-export class GroupAllowMemberInviteEvent extends EventBase {
+/** 群聊允许成员邀请加群事件 */
+export interface GroupAllowMemberInviteEvent extends EventBase {
+  readonly type: 'GroupAllowMemberInviteEvent'
+  /** 原状态 */
   origin: boolean
+  /** 现在的状态 */
   current: boolean
+  /** 群聊 */
   group: Group
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    origin,
-    current,
-    group,
-    operator
-  }: {
-    origin: boolean
-    current: boolean
-    group: Group
-    operator?: Member
-  }) {
-    super({ type: 'GroupAllowMemberInviteEvent' })
-    ;[this.origin, this.current, this.group, this.operator] = [
-      origin,
-      current,
-      group,
-      operator
-    ]
-  }
 }
-export class MemberJoinEvent extends EventBase {
+/** 成员加入事件 */
+export interface MemberJoinEvent extends EventBase {
+  readonly type: 'MemberJoinEvent'
+  /** 加入的成员 */
   member: Member
+  /** 邀请者（如果有） */
   invitor: undefined | Member
-  constructor({ member, invitor }: { member: Member; invitor?: Member }) {
-    super({ type: 'MemberJoinEvent' })
-    ;[this.member, this.invitor] = [member, invitor]
-  }
 }
-export class MemberLeaveEventKick extends EventBase {
+/** 成员被踢事件 */
+export interface MemberLeaveEventKick extends EventBase {
+  readonly type: 'MemberLeaveEventKick'
+  /** 被踢的成员 */
   member: Member
+  /** 邀请者（如果有） */
   operator: undefined | Member
-  constructor({ member, operator }: { member: Member; operator?: Member }) {
-    super({ type: 'MemberLeaveEventKick' })
-    ;[this.member, this.operator] = [member, operator]
-  }
 }
-export class MemberLeaveEventQuit extends EventBase {
+/** 成员退群事件 */
+export interface MemberLeaveEventQuit extends EventBase {
+  readonly type: 'MemberLeaveEventQuit'
+  /** 退群的成员 */
   member: Member
-  constructor({ member }: { member: Member; operator?: Member }) {
-    super({ type: 'MemberLeaveEventQuit' })
-    this.member = member
-  }
 }
-export class MemberCardChangeEvent extends EventBase {
+/** 成员群名片修改事件 */
+export interface MemberCardChangeEvent extends EventBase {
+  readonly type: 'MemberCardChangeEvent'
+  /** 原来的群名片 */
   origin: string
+  /** 现在的群名片 */
   current: string
+  /** （被）改群名片的成员 */
   member: Member
-  constructor({
-    origin,
-    current,
-    member
-  }: {
-    origin: string
-    current: string
-    member: Member
-  }) {
-    super({ type: 'MemberCardChangeEvent' })
-    ;[this.origin, this.current, this.member] = [origin, current, member]
-  }
 }
-export class MemberSpecialTitleChangeEvent extends EventBase {
+/** 成员群头衔更改事件 */
+export interface MemberSpecialTitleChangeEvent extends EventBase {
+  readonly type: 'MemberSpecialTitleChangeEvent'
+  /** 原来的头衔 */
   origin: string
+  /** 现在的头衔 */
   current: string
+  /** 被改的成员 */
   member: Member
-  constructor({
-    origin,
-    current,
-    member
-  }: {
-    origin: string
-    current: string
-    member: Member
-  }) {
-    super({ type: 'MemberSpecialTitleChangeEvent' })
-    ;[this.origin, this.current, this.member] = [origin, current, member]
-  }
 }
-export class MemberPermissionChangeEvent extends EventBase {
-  origin: 'ADMINISTRATOR' | 'MEMBER'
-  current: 'ADMINISTRATOR' | 'MEMBER'
+/** 群成员权限被改事件 */
+export interface MemberPermissionChangeEvent extends EventBase {
+  readonly type: 'MemberPermissionChangeEvent'
+  /** 原来的权限 */
+  origin: Permission
+  /** 现在的权限 */
+  current: Permission
+  /** 被改的成员 */
   member: Member
-  constructor({
-    origin,
-    current,
-    member
-  }: {
-    origin: 'ADMINISTRATOR' | 'MEMBER'
-    current: 'ADMINISTRATOR' | 'MEMBER'
-    member: Member
-  }) {
-    super({ type: 'MemberPermissionChangeEvent' })
-    ;[this.origin, this.current, this.member] = [origin, current, member]
-  }
 }
-export class MemberMuteEvent extends EventBase {
+/** 成员被禁言事件 */
+export interface MemberMuteEvent extends EventBase {
+  readonly type: 'MemberMuteEvent'
+  /** 被禁言时长 */
   durationSeconds: number
+  /** 被禁言的成员 */
   member: Member
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({
-    durationSeconds,
-    member,
-    operator
-  }: {
-    durationSeconds: number
-    member: Member
-    operator?: Member
-  }) {
-    super({ type: 'MemberMuteEvent' })
-    ;[this.durationSeconds, this.member, this.operator] = [
-      durationSeconds,
-      member,
-      operator
-    ]
-  }
 }
-export class MemberUnmuteEvent extends EventBase {
+/** 成员被解禁事件 */
+export interface MemberUnmuteEvent extends EventBase {
+  readonly type: 'MemberUnmuteEvent'
+  /** 被解禁的成员 */
   member: Member
+  /** 操作者，没有数据就是Bot干的 */
   operator: undefined | Member
-  constructor({ member, operator }: { member: Member; operator?: Member }) {
-    super({ type: 'MemberUnmuteEvent' })
-    ;[this.member, this.operator] = [member, operator]
-  }
 }
-export class MemberHonorChangeEvent extends EventBase {
+/** 成员群荣誉变更事件（不是群头衔） */
+export interface MemberHonorChangeEvent extends EventBase {
+  readonly type: 'MemberHonorChangeEvent'
+  /** 荣誉 */
   honor: string
+  /** 获得/失去 */
   action: 'achieve' | 'lost'
+  /** 变更的成员 */
   member: Member
-  constructor({
-    honor,
-    action,
-    member
-  }: {
-    honor: string
-    action: 'achieve' | 'lost'
-    member: Member
-  }) {
-    super({ type: 'MemberHonorChangeEvent' })
-    ;[this.honor, this.action, this.member] = [honor, action, member]
-  }
 }
-export class NewFriendRequestEvent extends EventBase {
+/** 用户请求添加Bot事件 */
+export interface NewFriendRequestEvent extends EventBase {
+  readonly type: 'NewFriendRequestEvent'
+  /** 用于回复请求的ID */
   eventId: number
+  /** 谁要加Bot */
   fromId: UserID
+  /** 哪个群过来的（如果是其它方式搜索到Bot则是0） */
   groupId: 0 | GroupID
+  /** 用户昵称 */
   nick: string
+  /** 留言 */
   message: string
-  constructor({
-    eventId,
-    fromId,
-    groupId,
-    nick,
-    message
-  }: {
-    eventId: number
-    fromId: UserID
-    groupId: 0 | GroupID
-    nick: string
-    message: string
-  }) {
-    super({ type: 'NewFriendRequestEvent' })
-    ;[this.eventId, this.fromId, this.groupId, this.nick, this.message] = [
-      eventId,
-      fromId,
-      groupId,
-      nick,
-      message
-    ]
-  }
 }
-export class MemberJoinRequestEvent extends EventBase {
+/** 用户请求加入群事件 */
+export interface MemberJoinRequestEvent extends EventBase {
+  readonly type: 'MemberJoinRequestEvent'
+  /** 用于回复请求的ID */
   eventId: number
+  /** 谁要进群 */
   fromId: UserID
+  /** 进哪个群 */
   groupId: GroupID
+  /** 群名字 */
   groupName: string
+  /** 用户昵称 */
   nick: string
+  /** 验证信息 */
   message: string
-  constructor({
-    eventId,
-    fromId,
-    groupId,
-    groupName,
-    nick,
-    message
-  }: {
-    eventId: number
-    fromId: UserID
-    groupId: GroupID
-    groupName: string
-    nick: string
-    message: string
-  }) {
-    super({ type: 'MemberJoinRequestEvent' })
-    ;[
-      this.eventId,
-      this.fromId,
-      this.groupId,
-      this.groupName,
-      this.nick,
-      this.message
-    ] = [eventId, fromId, groupId, groupName, nick, message]
-  }
 }
-export class BotInvitedJoinGroupRequestEvent extends EventBase {
+/** Bot被邀请加群事件 */
+export interface BotInvitedJoinGroupRequestEvent extends EventBase {
+  readonly type: 'BotInvitedJoinGroupRequestEvent'
+  /** 用于回复请求的ID */
   eventId: number
+  /** 谁在拉Bot */
   fromId: UserID
+  /** 拉到哪个群 */
   groupId: GroupID
+  /** 群名字 */
   groupName: string
+  /** 好友昵称 */
   nick: string
+  /** 留言 */
   message: string
-  constructor({
-    eventId,
-    fromId,
-    groupId,
-    groupName,
-    nick,
-    message
-  }: {
-    eventId: number
-    fromId: UserID
-    groupId: GroupID
-    groupName: string
-    nick: string
-    message: string
-  }) {
-    super({ type: 'BotInvitedJoinGroupRequestEvent' })
-    ;[
-      this.eventId,
-      this.fromId,
-      this.groupId,
-      this.groupName,
-      this.nick,
-      this.message
-    ] = [eventId, fromId, groupId, groupName, nick, message]
-  }
 }
-export class OtherClientOnlineEvent extends EventBase {
+/** 其它客户端上线事件 */
+export interface OtherClientOnlineEvent extends EventBase {
+  readonly type: 'OtherClientOnlineEvent'
+  /** 哪个客户端 */
   client: OtherClient
+  /** 客户端类型 */
   kind: undefined | number
-  constructor({ client, kind }: { client: OtherClient; kind?: number }) {
-    super({ type: 'OtherClientOnlineEvent' })
-    ;[this.client, this.kind] = [client, kind]
-  }
 }
-export class OtherClientOfflineEvent extends EventBase {
+/** 其它客户端下线事件 */
+export interface OtherClientOfflineEvent extends EventBase {
+  readonly type: 'OtherClientOfflineEvent'
+  /** 哪个客户端 */
   client: OtherClient
-  constructor({ client }: { client: OtherClient }) {
-    super({ type: 'OtherClientOfflineEvent' })
-    this.client = client
-  }
 }
-export class BaseFriendMessage extends EventBase {
+/** 好友消息 */
+export interface FriendMessage extends EventBase {
+  readonly type: 'FriendMessage'
+  /** 消息链 */
   messageChain: MessageChain
-  constructor({ messageChain }: { messageChain: MessageChain }) {
-    super({ type: 'FriendMessage' })
-    this.messageChain = messageChain
-  }
-}
-export class FriendMessage extends BaseFriendMessage {
+  /** 发给Bot消息的好友 */
   sender: User
-  constructor({
-    sender,
-    messageChain
-  }: {
-    sender: User
-    messageChain: MessageChain
-  }) {
-    super({ messageChain })
-    this.sender = sender
-  }
 }
-export class BaseGroupMessage extends EventBase {
+/** 群组消息 */
+export interface GroupMessage extends EventBase {
+  readonly type: 'GroupMessage'
+  /** 消息链 */
   messageChain: MessageChain
-  constructor({ messageChain }: { messageChain: MessageChain }) {
-    super({ type: 'GroupMessage' })
-    this.messageChain = messageChain
-  }
-}
-export class GroupMessage extends BaseGroupMessage {
+  /** 发消息的成员 */
   sender: Member
-  constructor({
-    sender,
-    messageChain
-  }: {
-    sender: Member
-    messageChain: MessageChain
-  }) {
-    super({ messageChain })
-    this.sender = sender
-  }
 }
-export class BaseTempMessage extends EventBase {
+/** 临时消息 */
+export interface TempMessage extends EventBase {
+  readonly type: 'TempMessage'
+  /** 消息链 */
   messageChain: MessageChain
-  constructor({ messageChain }: { messageChain: MessageChain }) {
-    super({ type: 'TempMessage' })
-    this.messageChain = messageChain
-  }
-}
-export class TempMessage extends BaseTempMessage {
+  /** 发给Bot消息的成员 */
   sender: Member
-  constructor({
-    sender,
-    messageChain
-  }: {
-    sender: Member
-    messageChain: MessageChain
-  }) {
-    super({ messageChain })
-    this.sender = sender
-  }
 }
-export class BaseStrangerMessage extends EventBase {
+export interface StrangerMessage extends EventBase {
+  readonly type: 'StrangerMessage'
+  /** 消息链 */
   messageChain: MessageChain
-  constructor({ messageChain }: { messageChain: MessageChain }) {
-    super({ type: 'StrangerMessage' })
-    this.messageChain = messageChain
-  }
-}
-export class StrangerMessage extends BaseStrangerMessage {
+  /** 发给Bot消息的用户 */
   sender: User
-  constructor({
-    sender,
-    messageChain
-  }: {
-    sender: User
-    messageChain: MessageChain
-  }) {
-    super({ messageChain })
-    this.sender = sender
-  }
 }
-export class BaseOtherClientMessage extends EventBase {
+/** 其它客户端消息基类 */
+export interface OtherClientMessage extends EventBase {
+  readonly type: 'OtherClientMessage'
+  /** 消息链 */
   messageChain: MessageChain
-  constructor({ messageChain }: { messageChain: MessageChain }) {
-    super({ type: 'OtherClientMessage' })
-    this.messageChain = messageChain
-  }
-}
-export class OtherClientMessage extends BaseOtherClientMessage {
+  /** 发给Bot消息的客户端 */
   sender: OtherClient
-  constructor({
-    sender,
-    messageChain
-  }: {
-    sender: OtherClient
-    messageChain: MessageChain
-  }) {
-    super({ messageChain })
-    this.sender = sender
-  }
 }
+/** websocket 关闭事件 */
 export interface WsClose {
   code: number
   reason: Buffer
 }
+/** websocket 未预期的消息（报文格式不对）事件 */
 export interface WsUnexpectedResponse {
   request: ClientRequest
   response: IncomingMessage
 }
+/** @private 事件id对参数类型，用于EventArg等 */
 interface Events {
   // WebSocket 事件
   error: Error
@@ -763,30 +464,18 @@ interface Events {
   OtherClientOnlineEvent: OtherClientOnlineEvent
   OtherClientOfflineEvent: OtherClientOfflineEvent
 }
+/** Event类型 */
 export type EventType = keyof Events
+/** 通用消息类型 */
 export type Message =
   | FriendMessage
   | GroupMessage
   | OtherClientMessage
   | StrangerMessage
   | TempMessage
-// 适用于仅要求消息内容而不要求发送者的情况。
-export type BaseMessage =
-  | BaseFriendMessage
-  | BaseGroupMessage
-  | BaseOtherClientMessage
-  | BaseStrangerMessage
-  | BaseTempMessage
+/**
+ * Typescript Helper：获得事件的参数类型。
+ * 例：EventArg<'FriendMessage'> = FriendMessage
+ * EventArg<EventType> 可获得所有参数的联合类型。
+ */
 export type EventArg<T extends EventType> = Events[T]
-// Processor
-export type Processor<T extends EventType> = (
-  data: EventArg<T>
-) => Promise<void> | void
-export type Matcher<T extends EventType> = (data: EventArg<T>) => boolean
-export class EventIndex<T extends EventType> {
-  type: T
-  index: number
-  constructor({ type, index }: { type: T; index: number }) {
-    void ([this.type, this.index] = [type, index])
-  }
-}

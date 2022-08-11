@@ -1,6 +1,7 @@
 import { MiraiError } from '../../Error'
 import axios from 'axios'
-import { FileDetail, GroupID } from '../../Base'
+import { GroupID } from '../../Base'
+import { FileDetail } from 'src/File'
 /**
  *  群创建文件夹
  * @param option 选项

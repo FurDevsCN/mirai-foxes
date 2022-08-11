@@ -1,4 +1,4 @@
-import { DownloadInfo, FileDetail, GroupID, UserID } from './Base'
+import { Group, GroupID, User, UserID } from './Base'
 import _getGroupFileList from './core/fs/getGroupFileList'
 import _uploadFile from './core/fs/uploadFile'
 import _deleteFile from './core/fs/deleteFile'
@@ -47,6 +47,50 @@ function getInstance(
   }
   return new Directory(bot, target, raw)
 }
+export interface DownloadInfo {
+  // sha1
+  sha1: string
+  // md5
+  md5: string
+  // 下载次数
+  downloadTimes: number
+  // 上传者QQ
+  uploaderId: UserID
+  // 上传时间
+  uploadTime: number
+  // 最后修改时间
+  lastModifyTime: number
+  // 下文件的url
+  url: string
+}
+export interface FileDetail {
+  // 文件名
+  name: string
+  // id
+  id: string
+  // 路径
+  path: string
+  // 父目录
+  parent: null | FileDetail
+  // 来自
+  contact: Group | User
+  // 是否是文件
+  isFile: boolean
+  // 是否是目录（可和文件二选一，统一用一个）
+  isDirectory: boolean
+  // sha1
+  sha1: string
+  // md5
+  md5: string
+  // 下载次数
+  downloadTimes: number
+  // 上传者QQ
+  uploaderId: UserID
+  // 上传时间
+  uploadTime: number
+  // 最后修改时间
+  lastModifyTime: number
+}
 export class FileManager {
   private bot: Bot
   private target: GroupID | UserID
@@ -91,7 +135,7 @@ export class FileManager {
   }
   /**
    *  获取文件/目录
-   * @param name 必选，名字/id。
+   * @param name 名字/id。
    * @returns 文件/目录
    */
   async get(name: string): Promise<File | Directory> {
@@ -129,8 +173,8 @@ export class FileManager {
   }
   /**
    *  上传文件
-   * @param file       必选，文件二进制数据
-   * @param filename   必选，文件名
+   * @param file       文件二进制数据
+   * @param filename   文件名
    */
   async upload(file: Buffer, filename: string): Promise<File> {
     const f = await _uploadFile({
@@ -266,7 +310,7 @@ export class Directory {
   }
   /**
    *  从当前目录获得文件/目录。
-   * @param filename 必选，文件/目录名。
+   * @param filename 文件/目录名。
    * @returns 文件/目录
    */
   async get(filename: string): Promise<File | Directory> {
@@ -305,7 +349,7 @@ export class Directory {
   /**
    *  上传文件至当前实例指代的目录下
    * @param file     二选一，文件二进制数据
-   * @param filename 必选，新的文件名。
+   * @param filename 新的文件名。
    * @returns 文件。
    */
   async upload(file: Buffer, filename: string): Promise<File> {

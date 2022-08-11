@@ -15,13 +15,13 @@ export default async ({
   sessionKey,
   target,
   content,
-  pinned
+  pinned = false
 }: {
   httpUrl: string
   sessionKey: string
   target: GroupID
   content: string
-  pinned: boolean
+  pinned?: boolean
 }): Promise<void> => {
   // 请求
   const responseData = await axios.post<{

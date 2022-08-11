@@ -1,4 +1,5 @@
-import { FileDetail, GroupID } from '../../Base'
+import { GroupID } from '../../Base'
+import { FileDetail } from '../../File'
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 /**
@@ -16,11 +17,11 @@ export default async ({
   sessionKey,
   id,
   path,
-  group,
+  group
 }: {
   httpUrl: string
   sessionKey: string
-  id?: string,
+  id?: string
   path: null | string
   group: GroupID
 }): Promise<FileDetail> => {

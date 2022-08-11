@@ -1,5 +1,5 @@
 import { GroupID, UserID } from './Base'
-// 消息类型。
+/** 消息类型 */
 export type MessageType =
   | 'Source'
   | 'Quote'
@@ -19,29 +19,36 @@ export type MessageType =
   | 'Forward'
   | 'Face'
   | 'File'
-/**
- * http 接口需要的消息类型
- */
+/** 基本消息类型，请在判断类型后用as转换为派生类 */
 export class MessageBase {
   readonly type: MessageType
   constructor({ type }: { type: MessageType }) {
     this.type = type
   }
 }
+/** 消息源信息，用于回复或消息操作 */
 export class Source extends MessageBase {
+  /** 消息id */
   id: number
+  /** 发送时间 */
   time: number
   constructor({ id, time }: { id: number; time: number }) {
     super({ type: 'Source' })
     ;[this.id, this.time] = [id, time]
   }
 }
+/** 引用信息 */
 export class Quote extends MessageBase {
+  /** 原消息的id */
   id: number
-  groupId: GroupID
+  /** 群组id */
+  groupId: 0 | GroupID
+  /** 原消息发送人id */
   senderId: UserID
-  targetId: UserID
-  origin: MessageChain
+  /** 原消息的目标ID */
+  targetId: GroupID | UserID
+  /** 原消息内容（不带Source） */
+  origin: MessageBase[]
   constructor({
     id,
     groupId,
@@ -53,7 +60,7 @@ export class Quote extends MessageBase {
     groupId: GroupID
     senderId: UserID
     targetId: UserID
-    origin: MessageChain
+    origin: MessageBase[]
   }) {
     super({ type: 'Quote' })
     ;[this.id, this.groupId, this.senderId, this.targetId, this.origin] = [
@@ -65,15 +72,20 @@ export class Quote extends MessageBase {
     ]
   }
 }
+/** 纯文本 */
 export class Plain extends MessageBase {
+  /** 消息文字 */
   text: string
   constructor(text: string) {
     super({ type: 'Plain' })
     this.text = text
   }
 }
+/** at消息 */
 export class At extends MessageBase {
+  /** 目标用户ID */
   target: UserID
+  /** 他人显示的内容（被At用户的群名片） */
   display: string
   constructor(target: UserID, display = '') {
     super({ type: 'At' })
@@ -81,14 +93,19 @@ export class At extends MessageBase {
     ;[this.target, this.display] = [target, display]
   }
 }
+/** at全体成员消息 */
 export class AtAll extends MessageBase {
   constructor() {
     super({ type: 'AtAll' })
   }
 }
+/** 图片消息 */
 export class Image extends MessageBase {
+  /** 图片id */
   imageId: string
+  /** 下载图片的url */
   url: string
+  /** 本地路径，相对于JVM工作路径（不推荐） */
   path: string | undefined
   constructor({
     imageId = '',
@@ -100,14 +117,16 @@ export class Image extends MessageBase {
     path?: string
   }) {
     super({ type: 'Image' })
-    // 图片路径相对于 mirai-console
-    // 的 plugins/MiraiAPIHTTP/images
     ;[this.imageId, this.url, this.path] = [imageId, url, path]
   }
 }
+/** 闪图（阅后即焚） */
 export class FlashImage extends MessageBase {
+  /** 图片id */
   imageId: string
+  /** 下载图片的url */
   url: string
+  /** 本地路径，相对于JVM工作路径（不推荐） */
   path: undefined | string
   constructor({
     imageId = '',
@@ -119,14 +138,16 @@ export class FlashImage extends MessageBase {
     path?: string
   }) {
     super({ type: 'FlashImage' })
-    // 图片路径相对于 mirai-console
-    // 的 plugins/MiraiAPIHTTP/images
     ;[this.imageId, this.url, this.path] = [imageId, url, path]
   }
 }
+/** 语音 */
 export class Voice extends MessageBase {
+  /** 语音id */
   voiceId: string
+  /** 下载路径 */
   url: string
+  /** 本地路径，相对于JVM工作路径（不推荐） */
   path: string
   constructor({
     voiceId = '',
@@ -143,35 +164,50 @@ export class Voice extends MessageBase {
     ;[this.voiceId, this.url, this.path] = [voiceId, url, path]
   }
 }
+/** 戳一戳 */
 export class Poke extends MessageBase {
+  /** 戳一戳类型 */
   name: string
   constructor({ name }: { name: string }) {
     super({ type: 'Poke' })
     this.name = name
   }
 }
+/** 骰子消息 */
 export class Dice extends MessageBase {
+  /** 扔出来的点数 */
   value: number
   constructor({ value }: { value: number }) {
     super({ type: 'Dice' })
     this.value = value
   }
 }
+/** 商城表情 */
 export class MarketFace extends MessageBase {
+  /** 表情唯一id */
   id: number
+  /** 表情显示名称 */
   name: string
   constructor({ id, name }: { id: number; name: string }) {
     super({ type: 'MarketFace' })
     ;[this.id, this.name] = [id, name]
   }
 }
+/** 音乐分享 */
 export class MusicShare extends MessageBase {
+  /** 类型 */
   kind: string
+  /** 标题 */
   title: string
+  /** 概要 */
   summary: string
+  /** 点击后跳转的链接 */
   jumpUrl: string
+  /** 图片链接 */
   pictureUrl: string
+  /** 音源（不点进去而是点播放时播放的声音）链接 */
   musicUrl: string
+  /** 简介 */
   brief: string
   constructor({
     kind,
@@ -202,45 +238,68 @@ export class MusicShare extends MessageBase {
     ] = [kind, title, summary, jumpUrl, pictureUrl, musicUrl, brief]
   }
 }
+/** 文件 */
 export class File extends MessageBase {
+  /** 文件id(用来获得文件) */
   id: string
+  /** 文件名 */
   name: string
+  /** 大小 */
   size: number
   constructor({ id, name, size }: { id: string; name: string; size: number }) {
     super({ type: 'File' })
     ;[this.id, this.name, this.size] = [id, name, size]
   }
 }
+/** Xml卡片 */
 export class Xml extends MessageBase {
+  /** xml内容 */
   xml: string
   constructor(xml: string) {
     super({ type: 'Xml' })
     this.xml = xml
   }
 }
+/** Json卡片 */
 export class Json extends MessageBase {
+  /** json内容 */
   json: string
   constructor(json: string) {
     super({ type: 'Json' })
     this.json = json
   }
 }
+/** 小程序 */
 export class App extends MessageBase {
+  /** 小程序内容 */
   content: string
   constructor(content: string) {
     super({ type: 'App' })
     this.content = content
   }
 }
+/** 转发消息节点 */
 export interface ForwardNode {
+  /** 发送者id */
   senderId?: UserID
+  /** 发送时间 */
   time?: number
+  /** 发送者名称 */
   senderName?: string
-  messageChain?: MessageType[]
+  /** 原消息链 */
+  messageChain?: MessageBase[]
+  /** 可以指定messageId而不是节点 */
   messageId?: number
 }
+/** 转发消息 */
 export class ForwardNodeList extends MessageBase {
+  /** 节点 */
   nodeList: ForwardNode[]
+  /**
+   * 添加一个节点
+   * @param node 可以是ForwardNode也可以是messageId
+   * @returns    this
+   */
   add(node: ForwardNode | number): this {
     if (typeof node == 'number') {
       this.nodeList.push({
@@ -256,8 +315,11 @@ export class ForwardNodeList extends MessageBase {
     this.nodeList = nodeList
   }
 }
+/** 表情 */
 export class Face extends MessageBase {
+  /** 表情ID */
   faceId: number
+  /** 表情名称 */
   name: string
   constructor({ faceId, name }: { faceId: number; name: string }) {
     super({
@@ -267,6 +329,7 @@ export class Face extends MessageBase {
     this.name = name
   }
 }
+/** 消息链类型 */
 export type MessageChain = MessageBase[] & {
   0: Source
 }

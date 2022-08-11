@@ -1,4 +1,5 @@
-import { DownloadInfo, GroupID } from '../../Base'
+import { GroupID } from '../../Base'
+import { DownloadInfo } from '../../File'
 import { MiraiError } from '../../Error'
 import axios from 'axios'
 /**

@@ -39,22 +39,17 @@ import _newFriend from './core/event/newFriend'
 import _setEssence from './core/setEssence'
 import _getMsg from './core/getMsg'
 import {
-  EventIndex,
   EventType,
-  Processor,
   NewFriendRequestEvent,
   MemberJoinRequestEvent,
   BotInvitedJoinGroupRequestEvent,
   EventArg,
   EventBase,
-  Matcher,
   GroupMessage,
   Message,
-  BaseFriendMessage,
-  BaseGroupMessage,
-  BaseMessage,
-  BaseStrangerMessage,
-  BaseTempMessage
+  FriendMessage,
+  StrangerMessage,
+  TempMessage
 } from './Event'
 import { MessageBase, Source, Voice } from './Message'
 import {
@@ -66,60 +61,110 @@ import {
   UserID,
   MemberID,
   GroupID,
-  GroupInfo
+  GroupInfo,
+  MemberSetting,
+  OtherClient
 } from './Base'
 import { FileManager } from './File'
+/**
+ * Typescript Helper：获得事件的处理器类型。
+ * 例：Processor<'FriendMessage'> = (data: FriendMessage) => Promise<void> | void
+ */
+export type Processor<T extends EventType> = (
+  data: EventArg<T>
+) => Promise<void> | void
+/**
+ * Typescript Helper：获得事件的匹配器类型。
+ * 例：Matcher<'FriendMessage'> = (data: FriendMessage) => boolean
+ */
+export type Matcher<T extends EventType> = (data: EventArg<T>) => boolean
+/**
+ * 获得事件在事件池中的定位。
+ */
+export class EventIndex<T extends EventType> {
+  type: T
+  index: number
+  constructor({ type, index }: { type: T; index: number }) {
+    void ([this.type, this.index] = [type, index])
+  }
+}
+/** send方法要求的选项 */
 interface SendOption<T extends GroupID | UserID | MemberID> {
+  /** 账户 qq 号或者群员上下文(上下文用于发送临时消息) */
   qq: T
-  reply?: BaseMessage
+  /** 要回复的消息，可以是Bot发送的 */
+  reply?: Message
+  /** 要发送的消息 */
   message: MessageBase[]
 }
-export interface Config {
-  // 账户QQ号。
-  qq: UserID
-  // 认证密码。
-  verifyKey: string
-  // websocket地址。mirai-api-http API问题导致不得不同时使用http/ws。
-  wsUrl: string
-  // http地址。mirai-api-http API问题导致不得不同时使用http/ws。
-  httpUrl: string
-  // 是否为单账户模式。
-  singleMode?: boolean
+/** remove方法要求的选项 */
+interface RemoveOption<T extends GroupID | UserID | MemberID> {
+  /** 账户或群聊 qq 号或者群员 */
+  qq: T
+  /** 留言 */
+  message?: string
 }
-export interface ConfigInit extends Config {
+/** anno publish方法要求的选项 */
+interface AnnoOption {
+  /** 公告内容 */
+  content: string
+  /** 是否置顶 */
+  pinned?: boolean
+}
+/** 用户提供的机器人配置 */
+interface Config {
+  /** 账户QQ号。 */
+  qq: UserID
+  /** 认证密码。 */
+  verifyKey: string
+  /** websocket地址。mirai-api-http API问题导致不得不同时使用http/ws。 */
+  wsUrl: string
+  /** http地址。mirai-api-http API问题导致不得不同时使用http/ws。 */
+  httpUrl: string
+}
+/** 完整的机器人配置 */
+interface FullConfig extends Config {
+  /** 会话token。 */
   sessionKey: string
 }
 export class Bot {
-  private conf: undefined | ConfigInit
+  /** @private 机器人内部使用的Config。 */
+  private conf: undefined | FullConfig
+  /** @private 机器人内部使用的Websocket连接。 */
   private ws: undefined | WebSocket
+  /** @private 内部存储的事件池 */
   private event: Partial<
     Record<EventType, (Processor<EventType> | undefined)[]>
   > = {}
+  /** @private wait函数的等待器集合 */
   private waiting: Partial<Record<EventType, Matcher<EventType>[]>> = {}
   /**
-   * ws监听初始化。
+   * @private ws监听初始化。
    */
   private async __ListenWs(): Promise<void> {
-    if (!this.conf) {
-      throw new Error('请先设定 this.conf')
-    }
+    // 判断是否有conf
+    if (!this.conf) return
+    // 绑定sessionKey和qq
     await _bind({
       httpUrl: this.conf.httpUrl,
       sessionKey: this.conf.sessionKey,
       qq: this.conf.qq
     })
+    // 设定ws
     this.ws = await _startListen({
       wsUrl: this.conf.wsUrl,
       sessionKey: this.conf.sessionKey,
       verifyKey: this.conf.verifyKey,
       message: (data: EventBase) => {
+        // 收到事件
         const f = this.waiting[data.type]
-        const arg = data as EventArg<EventType>
+        const arg = data as EventArg<EventType> // 强转：此处要将data转为联合类型(无法在编译期确定data类型)。
         if (f) {
           // 此事件已被锁定
           for (const v in f) {
             // 事件被触发
             if (f[v](arg)) {
+              // 传入了联合类型
               delete f[v]
               this.waiting[data.type] = f
               return
@@ -127,8 +172,9 @@ export class Bot {
           }
         }
         this.event[data.type]?.forEach(
-          (i?: Processor<EventType>): void => void (i ? i(arg) : null)
+          (i?: Processor<EventType>): void => void (i ? i(arg) : null) // 传入了联合类型
         )
+        // 问题：特化的Processor在存入Record后理论可能被其它参数初始化。但若将Record存储的值类型改为特化后的，则无法正常传参（有冲突，缩减为never），故只能使用这个下下策。
       },
       error: err => {
         const f = this.waiting['error']
@@ -190,43 +236,40 @@ export class Bot {
   /**
    * 获得设置项。
    */
-  get config(): ConfigInit {
-    if (!this.conf) {
-      throw new Error('config 请先调用 open，建立一个会话')
-    }
+  get config(): FullConfig {
+    if (!this.conf) throw new Error('config 请先调用 open，建立一个会话')
     return this.conf
   }
   /**
    * 由消息ID获得一条消息
    * @param messageId 消息ID
-   * @returns 消息
+   * @param target    目标群/好友QQ号
+   * @returns         消息
    */
-  async msg(messageId: number): Promise<Message> {
+  async msg(target: GroupID | UserID, messageId: number): Promise<Message> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('config 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('config 请先调用 open，建立一个会话')
     // 需要使用的参数
     const { httpUrl, sessionKey } = this.conf
     return await _getMsg({
       httpUrl,
       sessionKey,
+      target,
       messageId
     })
   }
   /**
-   * 获得最新的数据/等待数据。
-   * @param type 事件类型。
-   * @param matcher 匹配器。当匹配器返回true时才会回传data。
+   * 等待由matcher匹配的指定事件。在匹配成功时不会触发其它触发器。
+   * @param type    事件类型。
+   * @param matcher 匹配器。当匹配器返回true时才会回传事件。
+   * @returns       匹配到的事件。
    */
   wait<T extends EventType>(
     type: T,
     matcher: Matcher<T>
   ): Promise<EventArg<T>> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('wait 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('wait 请先调用 open，建立一个会话')
     return new Promise<EventArg<T>>(resolve => {
       const resolver = ((data: EventArg<T>): boolean => {
         if (matcher(data)) {
@@ -235,17 +278,14 @@ export class Bot {
         }
         return false
       }) as Matcher<EventType>
-      if (this.waiting[type]) {
-        this.waiting[type]?.push(resolver)
-      } else {
-        this.waiting[type] = [resolver]
-      }
+      if (this.waiting[type]) this.waiting[type]?.push(resolver)
+      else this.waiting[type] = [resolver]
     })
   }
   /**
    * 关闭机器人连接。
-   * @param option 选项。
-   * @param option.keepProcessor 是否保留事件处理器
+   * @param option               选项。
+   * @param option.keepProcessor 是否保留事件处理器。
    */
   async close({ keepProcessor = false } = {}): Promise<void> {
     // 检查对象状态
@@ -272,47 +312,30 @@ export class Bot {
       httpUrl: this.conf.httpUrl,
       verifyKey: this.conf.verifyKey
     })
-    conf.singleMode || (await this.__ListenWs())
+    await this.__ListenWs()
   }
   /**
-   * 向 qq 好友 或 qq 群发送消息，若同时提供，则优先向好友发送消息
-   * @param type           必选 群聊消息|好友消息|临时消息
-   * @param option         选项。
-   * @param option.qq      必选，账户 qq 号或上下文
-   * @param option.reply   可选，消息引用，使用Message
-   * @param option.message 必选，消息数组
-   * @returns 消息
+   * 向 qq 好友 或 qq 群发送消息。
+   * @param type           群聊消息|好友消息|临时消息
+   * @param option         发送选项。
+   * @returns              消息
    */
-  async send(
-    type: 'group',
-    option: SendOption<GroupID>
-  ): Promise<BaseGroupMessage>
-  async send(
-    type: 'friend',
-    option: SendOption<UserID>
-  ): Promise<BaseFriendMessage>
-  async send(
-    type: 'temp',
-    option: SendOption<UserID>
-  ): Promise<BaseStrangerMessage>
-  async send(
-    type: 'temp',
-    option: SendOption<MemberID>
-  ): Promise<BaseTempMessage>
+  async send(type: 'group', option: SendOption<GroupID>): Promise<GroupMessage>
+  async send(type: 'friend', option: SendOption<UserID>): Promise<FriendMessage>
+  async send(type: 'temp', option: SendOption<UserID>): Promise<StrangerMessage>
+  async send(type: 'temp', option: SendOption<MemberID>): Promise<TempMessage>
   async send(
     type: 'group' | 'friend' | 'temp',
     option: SendOption<UserID | GroupID | MemberID>
-  ): Promise<BaseMessage> {
+  ): Promise<Message> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('send 请先调用 open，建立一个会话')
-    }
-    let msgtype: EventType, id: number
+    if (!this.conf) throw new Error('send 请先调用 open，建立一个会话')
+    let msgtype: EventType, id: number, sender: User | Member | OtherClient
     // 需要使用的参数
     const { httpUrl, sessionKey } = this.conf
     // 根据 temp、friend、group 参数的情况依次调用
     if (type == 'temp') {
-      if (option.qq instanceof MemberID) {
+      if (typeof option.qq != 'number') {
         msgtype = 'TempMessage'
         id = await _sendTempMessage({
           httpUrl,
@@ -322,6 +345,20 @@ export class Bot {
           quote: option.reply?.messageChain[0].id,
           messageChain: option.message
         })
+        sender = {
+          id: this.conf.qq,
+          memberName: '',
+          specialTitle: '',
+          permission: 'MEMBER',
+          joinTimestamp: 0,
+          lastSpeakTimestamp: 0,
+          muteTimeRemaining: 0,
+          group: {
+            id: option.qq.group,
+            name: '',
+            permission: 'MEMBER'
+          }
+        }
       } else {
         msgtype = 'StrangerMessage'
         id = await _sendTempMessage({
@@ -331,19 +368,47 @@ export class Bot {
           quote: option.reply?.messageChain[0].id,
           messageChain: option.message
         })
+        sender = {
+          id: this.conf.qq,
+          nickname: '',
+          remark: ''
+        }
       }
-    } else if (!(option.qq instanceof MemberID)) {
+    } else {
       msgtype = type == 'friend' ? 'FriendMessage' : 'GroupMessage'
       id = await (type == 'friend' ? _sendFriendMessage : _sendGroupMessage)({
         httpUrl,
         sessionKey,
-        target: option.qq,
+        target: option.qq as UserID | GroupID,
         quote: option.reply?.messageChain[0].id,
         messageChain: option.message
       })
-    } else throw new Error('send 参数错误')
+      if (msgtype == 'FriendMessage') {
+        sender = {
+          id: option.qq as UserID,
+          nickname: '',
+          remark: ''
+        }
+      } else {
+        sender = {
+          id: this.conf.qq,
+          memberName: '',
+          specialTitle: '',
+          permission: 'MEMBER',
+          joinTimestamp: 0,
+          lastSpeakTimestamp: 0,
+          muteTimeRemaining: 0,
+          group: {
+            id: option.qq as GroupID,
+            name: '',
+            permission: 'MEMBER'
+          }
+        }
+      }
+    }
     return {
       type: msgtype,
+      sender: sender as User & Member & OtherClient,
       messageChain: [
         new Source({
           id,
@@ -360,12 +425,10 @@ export class Bot {
    */
   async nudge(qq: UserID | MemberID): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('nudge 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('nudge 请先调用 open，建立一个会话')
     // 需要使用的参数
     const { httpUrl, sessionKey } = this.conf
-    if (qq instanceof MemberID) {
+    if (typeof qq != 'number') {
       await _sendNudge({
         httpUrl,
         sessionKey,
@@ -385,13 +448,10 @@ export class Bot {
   }
   /**
    * 手动触发一个事件。
-   * @param type 事件类型。
+   * @param type  事件类型。
    * @param value 事件参数。
    */
-  async dispatch<T extends EventType>(
-    type: T,
-    value: EventArg<T>
-  ): Promise<void> {
+  dispatch<T extends EventType>(type: T, value: EventArg<T>): void {
     // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
     const f = this.waiting[type as EventType]
     if (f) {
@@ -412,15 +472,13 @@ export class Bot {
   /**
    * 添加一个事件处理器
    * 框架维护的 WebSocket 实例会在 ws 的事件 message 下分发 Mirai http server 的消息。
-   * @param type 必选，事件类型
-   * @param callback  必选，回调函数
-   * @returns 事件处理器的标识，用于移除该处理器
+   * @param type     事件类型
+   * @param callback 回调函数
+   * @returns        事件处理器的标识，用于移除该处理器
    */
   on<T extends EventType>(type: T, callback: Processor<T>): EventIndex<T> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('on 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('on 请先调用 open，建立一个会话')
     this.event[type] || (this.event[type] = [])
     // 生成EventID用于标识。
     let t = this.event[type]
@@ -437,11 +495,11 @@ export class Bot {
   }
   /**
    * 添加一个一次性事件处理器，回调一次后自动移除
-   * @param type 必选，事件类型
-   * @param callback  必选，回调函数
-   * @param strict    可选，是否严格检测调用，由于消息可能会被中间件拦截
-   *                             当为 true 时，只有开发者的处理器结束后才会移除该处理器
-   *                             当为 false 时，即使消息被拦截，也会移除该处理器
+   * @param type 事件类型
+   * @param callback  回调函数
+   * @param strict    是否严格检测调用，由于消息可能会被中间件拦截
+   *                  当为 true 时，只有开发者的处理器结束后才会移除该处理器
+   *                  当为 false 时，将不等待开发者的处理器，直接移除
    */
   one<T extends EventType>(
     type: T,
@@ -449,22 +507,12 @@ export class Bot {
     strict = false
   ): void {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('on 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('on 请先调用 open，建立一个会话')
     let index: EventIndex<T> = new EventIndex<T>({ type, index: 0 })
     const processor: Processor<T> = async (
       data: EventArg<T>
     ): Promise<void> => {
-      if (strict) {
-        // 严格检测回调
-        // 当开发者的处理器结束后才移除该处理器，这里等待异步回调
-        await callback(data)
-      } else {
-        // 不严格检测，直接移除处理器
-        // 调用开发者提供的回调
-        callback(data)
-      }
+      strict ? await callback(data) : callback(data)
       this.off(index)
     }
     index = this.on(type, processor)
@@ -475,7 +523,7 @@ export class Bot {
   off(): void
   /**
    * 移除type下的所有处理器
-   * @param type 必选，事件类型
+   * @param type 事件类型
    */
   off<T extends EventType>(type: T): void
   /**
@@ -492,9 +540,7 @@ export class Bot {
     option?: EventType | EventIndex<EventType> | EventIndex<EventType>[]
   ): void {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('off 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('off 请先调用 open，建立一个会话')
     if (option) {
       if (option instanceof EventIndex) {
         const t = this.event[option.type]
@@ -512,23 +558,26 @@ export class Bot {
    * 撤回消息
    * @param message 欲撤回的消息
    */
-  async recall(message: BaseMessage): Promise<void> {
+  async recall(message: Message): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('recall 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('recall 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
     // 撤回消息
-    await _recall({ httpUrl, sessionKey, target: message.messageChain[0].id })
+    await _recall({
+      httpUrl,
+      sessionKey,
+      target: message.sender.id,
+      messageId: message.messageChain[0].id
+    })
   }
   /**
    * FIXME: 上游错误:type 指定为 'friend' 或 'temp' 时发送的图片显示红色感叹号，无法加载，group 则正常
    * 上传图片至服务器，返回指定 type 的 imageId，url，及 path
-   * @param type     必选，"friend" 或 "group" 或 "temp"
-   * @param option 选项
-   * @param option.img      必选，图片二进制数据
-   * @param option.suffix   图片文件后缀名，默认为"jpg"
-   * @returns 擦除类型的 Image 或 FlashImage 对象，可经实际构造后插入到message中。
+   * @param type          "friend" 或 "group" 或 "temp"
+   * @param option        选项
+   * @param option.img    图片二进制数据
+   * @param option.suffix 图片文件后缀名，默认为"jpg"
+   * @returns             擦除类型的 Image 或 FlashImage 对象，可经实际构造后插入到message中。
    */
   async image(
     type: 'friend' | 'group' | 'temp',
@@ -541,23 +590,19 @@ export class Bot {
     }
   ): Promise<{ imageId: string; url: string; path: '' }> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('image 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('image 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
     return await _uploadImage({ httpUrl, sessionKey, type, img, suffix })
   }
   /**
-   * FIXME: 上游错误:目前该功能返回的 voiceId 无法正常使用，无法
-   * 发送给好友，提示 message is empty，发到群里则是 1s 的无声语音
-   * TODO: 上游todo:目前type仅支持 "group"，请一定指定为"group"，
-   * 否则将导致未定义行为。
+   * FIXME: 上游错误:目前该功能返回的 voiceId 无法正常使用，无法发送给好友，提示 message is empty，发到群里则是 1s 的无声语音
+   * TODO: 上游todo:目前type仅支持 "group"，请一定指定为"group"，否则将导致未定义行为。
    * 上传语音至服务器，返回 voiceId, url 及 path
-   * @param type 必选，"friend" 或 "group" 或 "temp"。
-   * @param option          选项
-   * @param option.voice    必选，语音二进制数据。
-   * @param option.suffix   语音文件后缀名，默认为"amr"。
-   * @returns Voice 对象，可直接插入到message中。
+   * @param type          "friend" 或 "group" 或 "temp"。
+   * @param option        选项
+   * @param option.voice  语音二进制数据。
+   * @param option.suffix 语音文件后缀名，默认为"amr"。
+   * @returns             Voice 对象，可直接插入到message中。
    */
   async voice(
     type: 'friend' | 'group' | 'group',
@@ -570,77 +615,131 @@ export class Bot {
     }
   ): Promise<Voice> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('voice 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('voice 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
     return await _uploadVoice({ httpUrl, sessionKey, type, voice, suffix })
   }
   /**
-   * 获取好友列表
-   * @returns 好友列表。
+   * 列出好友。
+   * @param type 要列出的类型。
+   * @returns    好友列表
    */
-  async listFriend(): Promise<User[]> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('friend 请先调用 open，建立一个会话')
-    }
-    const { httpUrl, sessionKey } = this.conf
-    return await _getFriendList({ httpUrl, sessionKey })
-  }
+  async list(type: 'friend'): Promise<User[]>
   /**
-   * 获取群列表
-   * @returns 群列表。
+   * 列出群聊。
+   * @param type 要列出的类型。
+   * @returns    好友列表
    */
-  async listGroup(): Promise<Group[]> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('group 请先调用 open，建立一个会话')
-    }
-    const { httpUrl, sessionKey } = this.conf
-    return await _getGroupList({ httpUrl, sessionKey })
-  }
+  async list(type: 'group'): Promise<Group[]>
   /**
-   * 获取指定群的成员列表
-   * @param group 必选，欲获取成员列表的群号
-   * @returns 群员列表。
+   * 列出好友。
+   * @param type 要列出的类型。
+   * @param id   群聊qq。
+   * @returns    群员列表
    */
-  async listMember(group: GroupID): Promise<Member[]> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('member 请先调用 open，建立一个会话')
-    }
+  async list(type: 'member', id: GroupID): Promise<Member[]>
+  async list(
+    type: 'friend' | 'group' | 'member',
+    id?: GroupID
+  ): Promise<User[] | Group[] | Member[]> {
+    if (!this.conf) throw new Error('list 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    return await _getMemberList({
-      httpUrl,
-      sessionKey,
-      target: group
-    })
+    if (type == 'member') {
+      if (!id) throw new Error('list 必须指定id')
+      return await _getMemberList({
+        httpUrl,
+        sessionKey,
+        target: id
+      })
+    } else {
+      if (id) throw new Error('list 不能指定id')
+      return await (type == 'friend' ? _getFriendList : _getGroupList)({
+        httpUrl,
+        sessionKey
+      })
+    }
   }
   /**
    * 获取群成员设置(members的细化操作)
    * @param info 上下文对象。
-   * @returns 群成员设置
+   * @returns    群成员设置
    */
-  async getMember(info: MemberID): Promise<Member> {
+  async get(info: MemberID): Promise<Member>
+  /**
+   * 获取群信息
+   * @param info 群号
+   * @returns    群信息
+   */
+  async get(info: GroupID): Promise<GroupInfo>
+  async get(info: MemberID | GroupID): Promise<Member | GroupInfo> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('memberInfo 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('getMember 请先调用 open，建立一个会话')
     // 获取列表
     const { httpUrl, sessionKey } = this.conf
-    return await _getMemberInfo({
-      httpUrl,
-      sessionKey,
-      target: info.group,
-      memberId: info.qq
-    })
+    if (typeof info != 'number') {
+      return await _getMemberInfo({
+        httpUrl,
+        sessionKey,
+        target: info.group,
+        memberId: info.qq
+      })
+    } else {
+      return await _getGroupConfig({ httpUrl, sessionKey, target: info })
+    }
+  }
+  async set(
+    info: MemberID,
+    setting: {
+      memberName?: string
+      specialTitle?: string
+      permission?: 'ADMINISTRATOR' | 'MEMBER'
+    }
+  ): Promise<void>
+  async set(info: GroupID, setting: GroupInfo): Promise<void>
+  async set(
+    info: GroupID | MemberID,
+    setting: MemberSetting | GroupInfo
+  ): Promise<void> {
+    // 检查对象状态
+    if (!this.conf) throw new Error('getMember 请先调用 open，建立一个会话')
+    // 获取列表
+    const { httpUrl, sessionKey } = this.conf
+    if (typeof info != 'number') {
+      const v = setting as MemberSetting
+      await _setMemberInfo({
+        httpUrl,
+        sessionKey,
+        target: info.group,
+        memberId: info.qq,
+        info: {
+          name: v.memberName,
+          specialTitle: v.specialTitle
+        }
+      })
+      // setPermission
+      if (v.permission) {
+        await _setMemberPerm({
+          httpUrl,
+          sessionKey,
+          target: info.group,
+          memberId: info.qq,
+          assign: v.permission == 'ADMINISTRATOR'
+        })
+      }
+    } else {
+      await _setGroupConfig({
+        httpUrl,
+        sessionKey,
+        target: info,
+        info: setting as GroupInfo
+      })
+    }
   }
   /**
    * 获取用户信息
-   * @param type   必选，可以为"friend" 或 "member" 或 "user" 或 "bot"。在某些情况下friend和user可以混用，但获得信息的详细程度可能不同。
-   * @param target   上下文。
-   * @returns 用户资料
+   * @param type   可以为"friend" 或 "member" 或 "user" 或 "bot"。在某些情况下friend和user可以混用，但获得信息的详细程度可能不同。
+   * @param target 上下文。
+   * @returns      用户资料
    */
   async profile(type: 'friend', target: UserID): Promise<Profile>
   async profile(type: 'member', target: MemberID): Promise<Profile>
@@ -651,153 +750,106 @@ export class Bot {
     target: UserID | MemberID | void
   ): Promise<Profile> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('profile 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('profile 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
     // 检查参数
-    if (type == 'member' && target instanceof MemberID) {
+    if (type == 'member') {
+      const v = target as MemberID
       return await _getMemberProfile({
         httpUrl,
         sessionKey,
-        target: target.group,
-        memberId: target.qq
+        target: v.group,
+        memberId: v.qq
       })
-    } else if (type == 'bot' && !target) {
+    } else if (type == 'bot') {
       return await _getBotProfile({ httpUrl, sessionKey })
-    } else if (
-      (type == 'friend' || type == 'user') &&
-      typeof target == 'number'
-    ) {
+    } else {
       return await (type == 'friend' ? _getFriendProfile : _getUserProfile)({
         httpUrl,
         sessionKey,
-        target
-      })
-    } else throw new Error('getUserProfile 参数被错误指定')
-  }
-  /**
-   * 设置群成员信息
-   * @param target 目标
-   * @param setting 成员信息
-   */
-  async setMember(
-    target: MemberID,
-    setting: {
-      memberName?: string
-      specialTitle?: string
-      permission?: 'ADMINISTRATOR' | 'MEMBER'
-    }
-  ): Promise<void> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('setMember 请先调用 open，建立一个会话')
-    }
-    // setMemberInfo
-    const { httpUrl, sessionKey } = this.conf
-    if (setting.memberName || setting.specialTitle) {
-      await _setMemberInfo({
-        httpUrl,
-        sessionKey,
-        target: target.group,
-        memberId: target.qq,
-        info: {
-          name: setting.memberName,
-          specialTitle: setting.specialTitle
-        }
-      })
-    }
-    // setPermission
-    if (setting.permission) {
-      await _setMemberPerm({
-        httpUrl,
-        sessionKey,
-        target: target.group,
-        memberId: target.qq,
-        assign: setting.permission == 'ADMINISTRATOR'
+        target: target as UserID
       })
     }
   }
   /**
-   * 获取群公告列表迭代器
-   * @param group 必选，群号
-   * @returns 迭代器
-   * @see https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for-await...of
+   * 获取群公告列表
+   * @param group 群号
+   * @returns     群公告列表
    */
-  async *anno(group: GroupID): AsyncGenerator<Announcement> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('anno 请先调用 open，建立一个会话')
-    }
-    // 获取列表
-    const { httpUrl, sessionKey } = this.conf
-    let offset = 0
-    let annoList: Announcement[]
-    while (
-      (annoList = await _getAnnoList({
-        httpUrl,
-        sessionKey,
-        id: group,
-        offset,
-        size: 10
-      })).length > 0
-    ) {
-      for (const anno of annoList) yield anno
-      // 获取下一页
-      offset += 10
-    }
-    return
-  }
+  async anno(type: 'list', group: GroupID): Promise<Announcement[]>
+  /**
+   * 删除群公告
+   * @param group 群号
+   * @param op    公告 id
+   */
+  async anno(type: 'remove', group: GroupID, op: Announcement): Promise<void>
   /**
    * 发布群公告
    * @param group 群号
-   * @param option.content 必选，公告内容
-   * @param option.pinned  可选，是否置顶，默认为否
+   * @param op    发布选项
    */
-  async publishAnno(
+  async anno(type: 'publish', group: GroupID, op: AnnoOption): Promise<void>
+  async anno(
+    type: 'list' | 'remove' | 'publish',
     group: GroupID,
-    {
-      content,
-      pinned = false
-    }: {
-      content: string
-      pinned?: boolean
-    }
-  ): Promise<void> {
+    op?: Announcement | AnnoOption
+  ): Promise<Announcement[] | void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('publishAnno 请先调用 open，建立一个会话')
-    }
-    // 发布公告
+    if (!this.conf) throw new Error('anno 请先调用 open，建立一个会话')
+    // 获取配置
     const { httpUrl, sessionKey } = this.conf
-    await _publishAnno({ httpUrl, sessionKey, target: group, content, pinned })
-  }
-  /**
-   * 删除群公告
-   * @param group 必选，群号
-   * @param id 必选，公告 id
-   */
-  async deleteAnno(group: GroupID, id: string): Promise<void> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('deleteAnno 请先调用 open，建立一个会话')
+    if (type == 'list') {
+      let offset = 0
+      let temp: Announcement[]
+      const anno: Announcement[] = []
+      while (
+        (temp = await _getAnnoList({
+          httpUrl,
+          sessionKey,
+          id: group,
+          offset,
+          size: 10
+        })).length > 0
+      ) {
+        anno.push(...temp)
+        // 获取下一页
+        offset += 10
+      }
+      return anno
+    } else {
+      if (!op) throw Error('anno 需要op参数')
+      if (type == 'publish') {
+        const v = op as AnnoOption
+        await _publishAnno({
+          httpUrl,
+          sessionKey,
+          target: group,
+          content: v.content,
+          pinned: v.pinned
+        })
+      } else {
+        const v = op as Announcement
+        await _deleteAnno({ httpUrl, sessionKey, id: group, fid: v.fid })
+      }
     }
-    // 发布公告
-    const { httpUrl, sessionKey } = this.conf
-    await _deleteAnno({ httpUrl, sessionKey, id: group, fid: id })
   }
   /**
    * 禁言群成员
-   * @param qq 必选，群员(单体禁言)或群号(全体禁言)
-   * @param time  可选，禁言时长，单位: s (秒)
+   * @param qq   群员(单体禁言)或群号(全体禁言)
+   * @param time 禁言时长，单位: s (秒)
    */
+  async mute(qq: MemberID, time: number): Promise<void>
+  /**
+   * 全体禁言
+   * @param qq   群员(单体禁言)或群号(全体禁言)
+   */
+  async mute(qq: GroupID): Promise<void>
   async mute(qq: MemberID | GroupID, time?: number): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('mute 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('mute 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    if (qq instanceof MemberID && time) {
+    if (typeof qq != 'number') {
+      if (!time) throw new Error('mute 必须指定时长')
       await _mute({
         httpUrl,
         sessionKey,
@@ -805,109 +857,70 @@ export class Bot {
         memberId: qq.qq,
         time
       })
-    } else if (typeof qq == 'number' && !time) {
+    } else {
       await _muteAll({ httpUrl, sessionKey, target: qq })
-    } else throw new Error('mute 参数错误')
+    }
   }
   /**
    * 解除禁言
-   * @param qq 必选，群员(单体解禁)或群号(全体解禁)
+   * @param qq 群员(单体解禁)或群号(全体解禁)
    */
   async unmute(qq: MemberID | GroupID): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('unmute 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('unmute 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    if (qq instanceof MemberID)
+    if (typeof qq != 'number')
       await _unmute({ httpUrl, sessionKey, target: qq.group, memberId: qq.qq })
     else await _unmuteAll({ httpUrl, sessionKey, target: qq })
   }
   /**
    * 移除群成员，好友或群
-   * @param type           必选，要移除的类型，可以是'friend'或'group'或'member'
+   * @param type           要移除的类型，可以是'friend'或'group'或'member'
    * @param option         选项
    * @param option.qq      要移除的目标
-   * @param option.message 可选，移除信息，默认为空串 ""，仅在'member'情况下可以指定
+   * @param option.message 移除信息，默认为空串 ""，仅在'member'情况下可以指定
    */
+  async remove(type: 'friend', option: RemoveOption<UserID>): Promise<void>
+  async remove(type: 'group', option: RemoveOption<GroupID>): Promise<void>
+  async remove(type: 'member', option: RemoveOption<MemberID>): Promise<void>
   async remove(
     type: 'friend' | 'group' | 'member',
-    {
-      qq,
-      message
-    }: {
-      qq: UserID | GroupID | MemberID
-      message?: string
-    }
+    option: RemoveOption<UserID | GroupID | MemberID>
   ): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('remove 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('remove 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    if (type == 'member' && qq instanceof MemberID) {
+    if (type == 'member') {
+      const v = option.qq as MemberID
       await _removeMember({
         httpUrl,
         sessionKey,
-        target: qq.group,
-        memberId: qq.qq,
-        msg: message ? message : ''
+        target: v.group,
+        memberId: v.qq,
+        msg: option.message ? option.message : ''
       })
-    } else if (typeof qq == 'number' && !message) {
+    } else {
       await (type == 'friend' ? _removeFriend : _quitGroup)({
         httpUrl,
         sessionKey,
-        target: qq
+        target: option.qq as UserID | GroupID
       })
-    } else throw new Error('remove 参数错误')
-  }
-  /**
-   * 获取群信息
-   * @param group 必选，群号
-   * @returns 群信息
-   */
-  async groupInfo(group: GroupID): Promise<GroupInfo> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('groupInfo 请先调用 open，建立一个会话')
     }
-    const { httpUrl, sessionKey } = this.conf
-    return await _getGroupConfig({ httpUrl, sessionKey, target: group })
   }
   /**
-   * 设置群信息
-   * @param group 必选，群号
-   * @param info 欲设置的信息
-   */
-  async setGroup(group: GroupID, info: GroupInfo): Promise<void> {
-    // 检查对象状态
-    if (!this.conf) {
-      throw new Error('setGroup 请先调用 open，建立一个会话')
-    }
-    const { httpUrl, sessionKey } = this.conf
-    await _setGroupConfig({
-      httpUrl,
-      sessionKey,
-      target: group,
-      info
-    })
-  }
-  /**
-   * 群文件管理器。
+   * 获得群文件管理器实例。
    * @param group 群号
-   * @returns 群文件管理器
+   * @returns     群文件管理器
    */
   file(group: GroupID): FileManager {
-    if (!this.conf) {
-      throw new Error('file 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('file 请先调用 open，建立一个会话')
     return new FileManager(this, group)
   }
   /**
    * 响应事件。
-   * @param event 事件。
-   * @param option 选项
-   * @param option.action 要进行的操作。"accept":同意。"refuse":拒绝。"ignore":忽略。"ignoredie":忽略并不再受理此请求。"refusedie":拒绝并不再受理此请求。
+   * @param event          事件。
+   * @param option         选项
+   * @param option.action  要进行的操作。"accept":同意。"refuse":拒绝。"ignore":忽略。"ignoredie":忽略并不再受理此请求。"refusedie":拒绝并不再受理此请求。
    * @param option.message 附带的信息。
    */
   async action(
@@ -941,11 +954,9 @@ export class Bot {
       message?: string
     }
   ): Promise<void> {
-    if (!this.conf) {
-      throw new Error('action 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('action 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    if (event instanceof NewFriendRequestEvent) {
+    if (event.type == 'NewFriendRequestEvent') {
       if (
         option.action != 'accept' &&
         option.action != 'refuse' &&
@@ -961,7 +972,7 @@ export class Bot {
           message: option.message
         }
       })
-    } else if (event instanceof MemberJoinRequestEvent) {
+    } else if (event.type == 'MemberJoinRequestEvent') {
       await _memberJoin({
         httpUrl,
         sessionKey,
@@ -983,19 +994,18 @@ export class Bot {
     }
   }
   /**
-   *  设置群精华消息
-   * @param message 必选，消息
+   * 设置群精华消息
+   * @param message 消息
    */
-  async setEssence(message: GroupMessage): Promise<void> {
+  async essence(message: GroupMessage): Promise<void> {
     // 检查对象状态
-    if (!this.conf) {
-      throw new Error('setEssence 请先调用 open，建立一个会话')
-    }
+    if (!this.conf) throw new Error('setEssence 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
     await _setEssence({
       httpUrl,
       sessionKey,
-      target: message.messageChain[0].id
+      target: message.sender.group.id,
+      messageId: message.messageChain[0].id
     })
   }
   constructor() {

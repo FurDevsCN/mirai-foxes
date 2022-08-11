@@ -28,32 +28,27 @@ bot.on(
 
 # 开发文档
 
-暂时没有写好开发文档（因为是几天撸出来的），配置的话可以先参照 mirai-js 的文档。
+若您是在Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurryR/mirai-foxes)来获得更多信息。
 
-Mirai-js 文档链接见下：
-
-- GitHub Page -> [https://drincann.github.io/Mirai-js](https://drincann.github.io/Mirai-js)
-- Vercel -> [https://mirai-js.vercel.app](https://mirai-js.vercel.app)
-
-Mirai-js QQ 群: 730757181
+点击这里访问[mirai-foxes 开发文档](./docs/README.md)。
 
 # 比较
 
 [mirai-ts](https://github.com/YunYouJun/mirai-ts)：
 
-> 类型注释和本项目相似（更好？），内部代码优雅程度比本项目好（有时候也可能是本项目比 mirai-ts 好，~~开发者本当会写 Typescript~~），但是本项目的构造参数写得比 mirai-ts 好，支持监听的~~冷门~~事件也比 mirai-ts 稍微多一点点。**mirai-ts 有文档，本项目暂时没有。**
+> 类型注释和本项目相似（更好？），内部代码优雅程度比本项目好（有时候也可能是本项目比 mirai-ts 好，~~开发者本当会写 Typescript~~），但是本项目的构造参数写得比 mirai-ts 好，支持监听的~~冷门~~事件也比 mirai-ts 稍微多一点点。
 
 [node-mirai](https://github.com/RedBeanN/node-mirai)：
 
-> 泛用性较本项目好（只需变更 listen 就可以完成对群组/用户消息的监听），类型注释较本项目略为不足，接口较本项目复杂。**node-mirai 也有文档，本项目暂时没有。**
+> 泛用性较本项目好（只需变更 listen 就可以完成对群组/用户消息的监听），类型注释较本项目略为不足，接口较本项目复杂。
 
 [Mirai-js](https://github.com/Drincann/Mirai-js)：
 
-> 本项目较 Mirai-js 多出了完整的类型注释，但本项目的 Middleware 较 Mirai-js 功能更弱（我懒得重写，~~要写暑假作业了~~）（~~加上数据放 data 里的方式太迷惑了~~），仅有部分简单中间件（~~借鉴 Ariadne~~），虽然能满足基本的命令匹配需求，但操作起来可能仍然比较棘手。**mirai-js 也有文档，而本项目还在咕。**
+> 本项目较 Mirai-js 多出了完整的类型注释，但本项目的 Middleware 较 Mirai-js 功能更弱（我懒得重写，~~要写暑假作业了~~）（~~加上数据放 data 里的方式太迷惑了~~），仅有部分简单中间件（~~借鉴 Ariadne~~），虽然能满足基本的命令匹配需求，但操作起来可能仍然比较棘手。
 
 ## 支持这个项目
 
-项目还未完善，暂时不考虑赞助链接。等到项目维护到一定程度了再说吧。
+我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果你希望支持这个项目，可以访问我们的页面来获得更多信息（~~你总不可能让我去开Patreon或者爱发电~~）。
 
 如果觉得这个项目还不错的话，就动动小手给个 star 吧！
 
