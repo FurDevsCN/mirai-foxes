@@ -104,6 +104,18 @@ interface RemoveOption<T extends GroupID | UserID | MemberID> {
   /** 留言 */
   message?: string
 }
+/** upload方法要求的选项 */
+interface UploadOption {
+  /** 要上传的东西 */
+  data: Buffer
+  /** 后辍名 */
+  suffix: string
+}
+interface TemplateImage {
+  imageId: string
+  url: string
+  path: ''
+}
 /** anno publish方法要求的选项 */
 interface AnnoOption {
   /** 公告内容 */
@@ -448,24 +460,23 @@ export class Bot {
   }
   /**
    * 手动触发一个事件。
-   * @param type  事件类型。
    * @param value 事件参数。
    */
-  dispatch<T extends EventType>(type: T, value: EventArg<T>): void {
+  dispatch<T extends EventType>(value: EventArg<T>): void {
     // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
-    const f = this.waiting[type as EventType]
+    const f = this.waiting[value.type as EventType]
     if (f) {
       // 此事件已被锁定
       for (const v in f) {
         // 事件被触发
         if (f[v](value)) {
           delete f[v]
-          this.waiting[type] = f
+          this.waiting[value.type] = f
           return
         }
       }
     }
-    this.event[type]?.forEach(
+    this.event[value.type]?.forEach(
       (i: undefined | Processor<T>): void => void (i ? i(value) : null)
     )
   }
@@ -579,21 +590,10 @@ export class Bot {
    * @param option.suffix 图片文件后缀名，默认为"jpg"
    * @returns             擦除类型的 Image 或 FlashImage 对象，可经实际构造后插入到message中。
    */
-  async image(
-    type: 'friend' | 'group' | 'temp',
-    {
-      img,
-      suffix = 'jpg'
-    }: {
-      img: Buffer
-      suffix?: string
-    }
-  ): Promise<{ imageId: string; url: string; path: '' }> {
-    // 检查对象状态
-    if (!this.conf) throw new Error('image 请先调用 open，建立一个会话')
-    const { httpUrl, sessionKey } = this.conf
-    return await _uploadImage({ httpUrl, sessionKey, type, img, suffix })
-  }
+  async upload(
+    type: ['image', 'friend' | 'group' | 'temp'],
+    option: UploadOption
+  ): Promise<TemplateImage>
   /**
    * FIXME: 上游错误:目前该功能返回的 voiceId 无法正常使用，无法发送给好友，提示 message is empty，发到群里则是 1s 的无声语音
    * TODO: 上游todo:目前type仅支持 "group"，请一定指定为"group"，否则将导致未定义行为。
@@ -604,20 +604,34 @@ export class Bot {
    * @param option.suffix 语音文件后缀名，默认为"amr"。
    * @returns             Voice 对象，可直接插入到message中。
    */
-  async voice(
-    type: 'friend' | 'group' | 'group',
-    {
-      voice,
-      suffix = 'amr'
-    }: {
-      voice: Buffer
-      suffix?: string
-    }
-  ): Promise<Voice> {
+  async upload(
+    type: ['voice', 'friend' | 'group' | 'temp'],
+    option: UploadOption
+  ): Promise<Voice>
+  async upload(
+    type: ['image' | 'voice', 'friend' | 'group' | 'temp'],
+    option: UploadOption
+  ): Promise<TemplateImage | Voice> {
     // 检查对象状态
-    if (!this.conf) throw new Error('voice 请先调用 open，建立一个会话')
+    if (!this.conf) throw new Error('upload 请先调用 open，建立一个会话')
     const { httpUrl, sessionKey } = this.conf
-    return await _uploadVoice({ httpUrl, sessionKey, type, voice, suffix })
+    if (type[0] == 'image') {
+      return await _uploadImage({
+        httpUrl,
+        sessionKey,
+        type: type[1],
+        img: option.data,
+        suffix: option.suffix
+      })
+    } else {
+      return await _uploadVoice({
+        httpUrl,
+        sessionKey,
+        type: type[1],
+        voice: option.data,
+        suffix: option.suffix
+      })
+    }
   }
   /**
    * 列出好友。
@@ -687,6 +701,12 @@ export class Bot {
       return await _getGroupConfig({ httpUrl, sessionKey, target: info })
     }
   }
+  /**
+   * 设定群成员设置(members的细化操作)
+   * @param info    上下文对象。
+   * @param setting 成员设定。
+   * @returns       群成员设置
+   */
   async set(
     info: MemberID,
     setting: {
@@ -695,6 +715,12 @@ export class Bot {
       permission?: 'ADMINISTRATOR' | 'MEMBER'
     }
   ): Promise<void>
+  /**
+   * 设定群设置(members的细化操作)
+   * @param info    上下文对象。
+   * @param setting 群设定。
+   * @returns       群成员设置
+   */
   async set(info: GroupID, setting: GroupInfo): Promise<void>
   async set(
     info: GroupID | MemberID,
@@ -917,10 +943,10 @@ export class Bot {
     return new FileManager(this, group)
   }
   /**
-   * 响应事件。
+   * 响应新朋友事件。
    * @param event          事件。
-   * @param option         选项
-   * @param option.action  要进行的操作。"accept":同意。"refuse":拒绝。"ignore":忽略。"ignoredie":忽略并不再受理此请求。"refusedie":拒绝并不再受理此请求。
+   * @param option         选项。
+   * @param option.action  要进行的操作。"accept":同意。"refuse":拒绝。"refusedie":拒绝并不再受理此请求。
    * @param option.message 附带的信息。
    */
   async action(
@@ -930,6 +956,13 @@ export class Bot {
       message?: string
     }
   ): Promise<void>
+  /**
+   * 响应成员加入事件。
+   * @param event          事件。
+   * @param option         选项。
+   * @param option.action  要进行的操作。"accept":同意。"refuse":拒绝。"ignore":忽略。"ignoredie":忽略并不再受理此请求。"refusedie":拒绝并不再受理此请求。
+   * @param option.message 附带的信息。
+   */
   async action(
     event: MemberJoinRequestEvent,
     option: {
@@ -937,6 +970,13 @@ export class Bot {
       message?: string
     }
   ): Promise<void>
+  /**
+   * 响应被邀请加入群事件。
+   * @param event          事件。
+   * @param option         选项。
+   * @param option.action  要进行的操作。"accept":同意。"refuse":拒绝。
+   * @param option.message 附带的信息。
+   */
   async action(
     event: BotInvitedJoinGroupRequestEvent,
     option: {

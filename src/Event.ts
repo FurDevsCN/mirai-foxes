@@ -404,20 +404,28 @@ export interface OtherClientMessage extends EventBase {
   /** 发给Bot消息的客户端 */
   sender: OtherClient
 }
+/** websocket 错误事件 */
+export interface WsError extends EventBase {
+  readonly type: 'error'
+  /** 错误信息 */
+  error: Error
+}
 /** websocket 关闭事件 */
-export interface WsClose {
+export interface WsClose extends EventBase {
+  readonly type: 'close'
   code: number
   reason: Buffer
 }
 /** websocket 未预期的消息（报文格式不对）事件 */
-export interface WsUnexpectedResponse {
+export interface WsUnexpectedResponse extends EventBase {
+  readonly type: 'unexpected-response'
   request: ClientRequest
   response: IncomingMessage
 }
 /** @private 事件id对参数类型，用于EventArg等 */
 interface Events {
   // WebSocket 事件
-  error: Error
+  error: WsError
   close: WsClose // done
   'unexpected-response': WsUnexpectedResponse // done
   // mirai 事件

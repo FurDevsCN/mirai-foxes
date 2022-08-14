@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import { EventBase, WsClose, WsUnexpectedResponse } from '../Event'
+import { EventBase, WsClose, WsError, WsUnexpectedResponse } from '../Event'
 /**
  * 开始侦听事件
  * @param option 设定
@@ -24,7 +24,7 @@ export default async ({
   sessionKey: string
   verifyKey: string
   message: (data: EventBase) => void
-  error: (err: Error) => void
+  error: (err: WsError) => void
   close: ({ code, reason }: WsClose) => void
   unexpectedResponse: (obj: WsUnexpectedResponse) => void
 }): Promise<WebSocket> => {
@@ -45,14 +45,18 @@ export default async ({
     ws.on('message', (data: Buffer) =>
       message(JSON.parse(data.toString())?.data)
     )
-    ws.on('error', (err: Error) => error(err))
+    ws.on('error', (err: Error) => error({ type: 'error', error: err }))
     ws.on('close', (code, reason) => {
       // 关闭心跳
       clearInterval(interval)
-      close({ code, reason })
+      close({ type: 'close', code, reason })
     })
     ws.on('unexpected-response', (req, res) =>
-      unexpectedResponse({ request: req, response: res })
+      unexpectedResponse({
+        type: 'unexpected-response',
+        request: req,
+        response: res
+      })
     )
   })
   return ws

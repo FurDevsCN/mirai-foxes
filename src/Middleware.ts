@@ -2,6 +2,14 @@ import { GroupID, UserID } from './Base'
 import { EventArg, FriendMessage, GroupMessage } from './Event'
 import { Processor } from './Bot'
 import { At, MessageBase, MessageChain, MessageType, Plain } from './Message'
+type AllMessage = 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'
+type AllProcessor = Processor<'FriendMessage'> &
+  Processor<'GroupMessage'> &
+  Processor<'OtherClientMessage'>
+type OneProcessor =
+  | Processor<'FriendMessage'>
+  | Processor<'GroupMessage'>
+  | Processor<'OtherClientMessage'>
 class GroupFilter {
   private fn: ((data: GroupMessage) => boolean)[] = []
   next(fn: ((data: GroupMessage) => boolean)[]): this {
@@ -80,9 +88,7 @@ class Matcher {
     this.fn.push(...fn)
     return this
   }
-  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
-    fn: Processor<T>
-  ): Processor<T> {
+  done<T extends AllMessage>(fn: Processor<T>): Processor<T> {
     return async (data: EventArg<T>): Promise<void> => {
       if (this.fn.every(fn => fn(data.messageChain))) await fn(data)
     }
@@ -193,9 +199,7 @@ class Parser {
     this.enable = true
     return this
   }
-  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
-    fn: Processor<T>
-  ): Processor<T> {
+  done<T extends AllMessage>(fn: Processor<T>): Processor<T> {
     return async (data: EventArg<T>): Promise<void> => {
       if (this.enable) data.messageChain = this.lexer(data.messageChain)
       await fn(data)
@@ -221,9 +225,10 @@ class MiddlewareBase {
     this._parser.next()
     return this
   }
-  static done<
-    T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'
-  >(base: MiddlewareBase, fn: Processor<T>): Processor<T> {
+  static done<T extends AllMessage>(
+    base: MiddlewareBase,
+    fn: Processor<T>
+  ): Processor<T> {
     return base._parser.done(
       base._matcher.done(async (data: EventArg<T>): Promise<void> => {
         await fn(data)
@@ -286,7 +291,7 @@ class UserMiddleware extends MiddlewareBase {
     this._filter = filter
   }
 }
-export class Middleware extends MiddlewareBase {
+class _Middleware extends MiddlewareBase {
   /**
    * 生成群组过滤器
    * @returns this
@@ -306,12 +311,70 @@ export class Middleware extends MiddlewareBase {
    * @param fn 处理结束后要执行的函数
    * @returns 事件处理器
    */
-  done<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>(
-    fn: Processor<T>
-  ): Processor<T> {
+  done<T extends AllMessage>(fn: Processor<T>): Processor<T> {
     return MiddlewareBase.done<T>(this, fn)
   }
   constructor() {
     super()
   }
+}
+export function Middleware({
+  matcher,
+  parser,
+  userFilter
+}: {
+  matcher: ((v: MessageChain) => boolean)[]
+  parser: boolean
+  userFilter: ((data: FriendMessage) => boolean)[]
+}): (fn: Processor<'FriendMessage'>) => Processor<'FriendMessage'>
+export function Middleware({
+  matcher,
+  parser,
+  groupFilter
+}: {
+  matcher: ((v: MessageChain) => boolean)[]
+  parser: boolean
+  groupFilter: ((data: GroupMessage) => boolean)[]
+}): (fn: Processor<'GroupMessage'>) => Processor<'GroupMessage'>
+export function Middleware({
+  matcher,
+  parser,
+  userFilter,
+  groupFilter
+}: {
+  matcher: ((v: MessageChain) => boolean)[]
+  parser: boolean
+  userFilter?: ((data: FriendMessage) => boolean)[]
+  groupFilter?: ((data: GroupMessage) => boolean)[]
+}): (fn: AllProcessor) => OneProcessor {
+  const m = new _Middleware()
+  if (userFilter && groupFilter)
+    throw new Error('Middleware 只能设置一个过滤器')
+  if (userFilter) {
+    if (parser) {
+      return m
+        .user()
+        .filter(userFilter)
+        .parser()
+        .matcher(matcher ? matcher : []).done
+    } else {
+      return m
+        .user()
+        .filter(userFilter)
+        .matcher(matcher ? matcher : []).done
+    }
+  } else if (groupFilter) {
+    if (parser) {
+      return m
+        .group()
+        .filter(groupFilter)
+        .parser()
+        .matcher(matcher ? matcher : []).done
+    } else {
+      return m
+        .group()
+        .filter(groupFilter)
+        .matcher(matcher ? matcher : []).done
+    }
+  } else throw new Error('Middleware 至少需要一个过滤器')
 }
