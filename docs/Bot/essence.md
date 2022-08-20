@@ -1,6 +1,6 @@
 # essence
 
-essence 允许你获得群文件管理器。
+essence允许你将消息设置群精华
 
 ### Typescript 方法速览
 

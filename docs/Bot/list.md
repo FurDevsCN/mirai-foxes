@@ -5,10 +5,10 @@ list允许您列出好友/群/群成员。
 ### Typescript 方法速览
 
 ```typescript
-class Bot {
+MemberID class Bot {
   async list(type: 'friend'): Promise<User[]>
   async list(type: 'group'): Promise<Group[]>
-  async list(type: 'member', id: GroupID): Promise<Member[]>
+  async list(type: 'member', id: MemberID): Promise<Member[]>
 }
 ```
 
@@ -26,6 +26,6 @@ import { Bot } from 'mirai-foxes'
   await bot.open({
     // ...
   })
-  await bot.list('member',0) // 获取群员列表
+  await bot.list('member', 0) // 获取群员列表
 })()
 ```

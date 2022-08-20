@@ -5,8 +5,8 @@ unmute 允许你解禁某个用户或某个群，只有管理员可以使用。
 ### Typescript 方法速览
 
 ```typescript
-class Bot {
-  async unmute(qq: MemberID | GroupID): Promise<void>
+MemberID class Bot {
+  async unmute(qq: MemberID | MemberID): Promise<void>
 }
 ```
 
