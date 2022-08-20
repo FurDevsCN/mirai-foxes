@@ -1,6 +1,6 @@
 # essence
 
-essence允许你将消息设置群精华
+essence 允许您将消息设置为群精华。
 
 ### Typescript 方法速览
 
