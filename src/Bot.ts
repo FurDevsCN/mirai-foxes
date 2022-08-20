@@ -985,5 +985,4 @@ export class Bot {
       messageId: message.messageChain[0].id
     })
   }
-  constructor() {}
 }
