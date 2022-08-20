@@ -1,6 +1,6 @@
 # list
 
-list 允许你列出文件和文件夹列表。
+list 允许您列出文件和文件夹列表。
 
 ### Typescript 方法速览
 

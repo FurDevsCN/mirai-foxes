@@ -1,6 +1,6 @@
 # remove
 
-remove 允许你删除文件。
+remove 允许您删除文件。
 
 ### Typescript 方法速览
 

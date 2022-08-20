@@ -1,6 +1,6 @@
 # dispatch
 
-dispatch允许您手动触发一个事件。
+dispatch允许您触发一个事件。
 
 ### Typescript 方法速览
 

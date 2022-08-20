@@ -1,6 +1,6 @@
 # Waiter
 
-Waiter 允许你生成一个等待器（用于`bot.wait`），不需要使用new。
+Waiter 允许您生成一个等待器（用于`bot.wait`），不需要使用new。
 
 ### Typescript 方法速览
 

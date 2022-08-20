@@ -168,79 +168,19 @@ export class Bot {
       verifyKey: this.conf.verifyKey,
       message: (data: EventBase) => {
         // 收到事件
-        const f = this.waiting[data.type]
-        const arg = data as EventArg<EventType> // 强转：此处要将data转为联合类型(无法在编译期确定data类型)。
-        if (f) {
-          // 此事件已被锁定
-          for (const v in f) {
-            // 事件被触发
-            if (f[v](arg)) {
-              // 传入了联合类型
-              delete f[v]
-              this.waiting[data.type] = f
-              return
-            }
-          }
-        }
-        this.event[data.type]?.forEach(
-          (i?: Processor<EventType>): void => void (i ? i(arg) : null) // 传入了联合类型
-        )
-        // 问题：特化的Processor在存入Record后理论可能被其它参数初始化。但若将Record存储的值类型改为特化后的，则无法正常传参（有冲突，缩减为never），故只能使用这个下下策。
+        this.dispatch(data as EventArg<EventType>) // 强转：此处要将data转为联合类型(无法在编译期确定data类型)。
       },
       error: err => {
-        const f = this.waiting['error']
+        this.dispatch(err)
         console.error('ws error', err)
-        if (f) {
-          // 此事件已被锁定
-          for (const v in f) {
-            // 事件被触发
-            if (f[v](err)) {
-              delete f[v]
-              this.waiting['error'] = f
-              return
-            }
-          }
-        }
-        this.event['error']?.forEach(
-          (i?: Processor<'error'>): void => void (i ? i(err) : null)
-        )
       },
       close: obj => {
-        const f = this.waiting['close']
+        this.dispatch(obj)
         console.log('ws close', obj)
-        if (f) {
-          // 此事件已被锁定
-          for (const v in f) {
-            // 事件被触发
-            if (f[v](obj)) {
-              delete f[v]
-              this.waiting['close'] = f
-              return
-            }
-          }
-        }
-        return this.event['close']?.forEach(
-          (i?: Processor<'close'>): void => void (i ? i(obj) : null)
-        )
       },
       unexpectedResponse: obj => {
-        const f = this.waiting['unexpected-response']
+        this.dispatch(obj)
         console.error('ws unexpectedResponse', obj)
-        if (f) {
-          // 此事件已被锁定
-          for (const v in f) {
-            // 事件被触发
-            if (f[v](obj)) {
-              delete f[v]
-              this.waiting['unexpected-response'] = f
-              return
-            }
-          }
-        }
-        return this.event['unexpected-response']?.forEach(
-          (i?: Processor<'unexpected-response'>): void =>
-            void (i ? i(obj) : null)
-        )
       }
     })
   }
@@ -458,7 +398,7 @@ export class Bot {
     }
   }
   /**
-   * 手动触发一个事件。
+   * 触发一个事件。
    * @param value 事件参数。
    */
   dispatch<T extends EventType>(value: EventArg<T>): void {

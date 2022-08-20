@@ -1,6 +1,6 @@
 # download
 
-download 允许你获取文件的下载信息。
+download 允许您获取文件的下载信息。
 
 ### Typescript 方法速览
 

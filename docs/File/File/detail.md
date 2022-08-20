@@ -1,6 +1,6 @@
 # detail
 
-detail 允许你获取文件属性信息。
+detail 允许您获取文件属性信息。
 
 ### Typescript 方法速览
 

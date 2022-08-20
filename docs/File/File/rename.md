@@ -1,6 +1,6 @@
 # move
 
-move 允许你重命名文件。
+move 允许您重命名文件。
 
 ### Typescript 方法速览
 

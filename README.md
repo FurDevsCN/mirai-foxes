@@ -49,7 +49,7 @@ bot.on(
 
 ## 支持这个项目
 
-我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果你希望支持这个项目，可以访问我们的页面来获得更多信息（~~你总不可能让我去开 Patreon 或者爱发电~~）。
+我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果您希望支持这个项目，可以访问我们的页面来获得更多信息（~~您总不可能让我去开 Patreon 或者爱发电~~）。
 
 如果觉得这个项目还不错的话，就动动小手给个 star 吧！
 

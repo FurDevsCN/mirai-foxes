@@ -99,7 +99,7 @@
      await bot.open({
        httpUrl: '', // http API 地址，前面要加http协议头
        wsUrl: '', // Websocket API 地址，前面要加ws协议头
-       verifyKey: 'FurDevsCN', // 你的连接验证密码(verifyKey)
+       verifyKey: 'FurDevsCN', // 您的连接验证密码(verifyKey)
        qq: 0 // 刚刚在MCL登录的Bot的QQ号
      })
      // 监听事件

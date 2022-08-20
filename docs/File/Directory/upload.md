@@ -1,6 +1,6 @@
 # upload
 
-upload 允许你上传文件。
+upload 允许您上传文件。
 
 ### Typescript 方法速览
 
