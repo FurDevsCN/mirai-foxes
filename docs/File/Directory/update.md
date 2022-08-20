@@ -1,6 +1,6 @@
 # update
 
-update 允许你更新文件夹信息。
+update 允许您更新文件夹信息。
 
 ### Typescript 方法速览
 

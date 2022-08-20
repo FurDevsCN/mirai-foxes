@@ -1,6 +1,6 @@
 # profile
 
-profile 允许你获取好友，成员，用户或者Bot的信息。
+profile 允许您获取好友，成员，用户或者Bot的信息。
 
 ### Typescript 方法速览
 

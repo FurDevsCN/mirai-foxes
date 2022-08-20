@@ -1,6 +1,6 @@
 # file
 
-file 允许你获得群文件管理器。
+file 允许您获得群文件管理器。
 
 ### Typescript 方法速览
 

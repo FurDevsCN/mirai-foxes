@@ -1,6 +1,6 @@
 # mkdir
 
-mkdir 允许你根据路径获取文件或文件夹。
+mkdir 允许您根据路径获取文件或文件夹。
 
 ### Typescript 方法速览
 

@@ -1,6 +1,6 @@
 # move
 
-move 允许你移动文件。
+move 允许您移动文件。
 
 ### Typescript 方法速览
 
