@@ -51,7 +51,7 @@ import {
   StrangerMessage,
   TempMessage
 } from './Event'
-import { MessageBase, Source, Voice } from './Message'
+import { Plain, MessageBase, Source, Voice } from './Message'
 import {
   Announcement,
   Group,
@@ -66,6 +66,7 @@ import {
   OtherClient
 } from './Base'
 import { FileManager } from './File'
+import { Message, Message } from 'src'
 /**
  * Typescript Helper：获得事件的处理器类型。
  * 例：Processor<'FriendMessage'> = (data: FriendMessage) => Promise<void> | void
@@ -95,7 +96,7 @@ interface SendOption<T extends GroupID | UserID | MemberID> {
   /** 要回复的消息，可以是Bot发送的 */
   reply?: Message
   /** 要发送的消息 */
-  message: MessageBase[]
+  message: MessageBase[] | string
 }
 /** remove方法要求的选项 */
 interface RemoveOption<T extends GroupID | UserID | MemberID> {
@@ -283,6 +284,9 @@ export class Bot {
     if (!this.conf) throw new Error('send 请先调用 open，建立一个会话')
     let msgtype: EventType, id: number, sender: User | Member | OtherClient
     // 需要使用的参数
+    if(typeof option.message == "string"){
+      option.message = [new Plain(option.message)]
+    } 
     const { httpUrl, sessionKey } = this.conf
     // 根据 temp、friend、group 参数的情况依次调用
     if (type == 'temp') {
