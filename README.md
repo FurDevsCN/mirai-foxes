@@ -1,5 +1,6 @@
 # mirai-foxes
 
+[![CI Status](https://github.com/FurryR/mirai-foxes/actions/workflows/typescript.yml/badge.svg)](https://github.com/FurryR/mirai-foxes/actions/workflows/typescript.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/furryr/mirai-foxes/badge)](https://www.codefactor.io/repository/github/furryr/mirai-foxes)
 [![HitCount](https://hits.dwyl.com/FurryR/mirai-foxes.svg?style=flat-square)](http://hits.dwyl.com/FurryR/mirai-foxes)
 
