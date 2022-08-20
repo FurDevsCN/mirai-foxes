@@ -5,7 +5,7 @@ list允许您列出好友/群/群成员。
 ### Typescript 方法速览
 
 ```typescript
-MemberID class Bot {
+class Bot {
   async list(type: 'friend'): Promise<User[]>
   async list(type: 'group'): Promise<Group[]>
   async list(type: 'member', id: MemberID): Promise<Member[]>
