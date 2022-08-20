@@ -1,6 +1,6 @@
 # remove
 
-remove 允许你移除好友，成员，用户
+remove 允许您移除好友，成员或用户。
 
 ### Typescript 方法速览
 
