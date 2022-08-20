@@ -5,8 +5,8 @@ import * as Message from './Message'
 import * as Base from './Base'
 import * as Middleware from './Middleware'
 import * as File from './File'
-import * as Error from './Error'
-import { waitFor } from './Waiter'
+import { MiraiError } from './Error'
+import { Waiter } from './Waiter'
 export {
   Bot,
   EventIndex,
@@ -17,8 +17,8 @@ export {
   Message,
   Base,
   Middleware,
-  Error,
-  waitFor
+  MiraiError,
+  Waiter
 }
 export default {
   Bot,
@@ -28,6 +28,6 @@ export default {
   Message,
   Base,
   Middleware,
-  Error,
-  waitFor
+  MiraiError,
+  Waiter
 }

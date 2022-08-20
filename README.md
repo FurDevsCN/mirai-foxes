@@ -13,23 +13,22 @@ mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代�
 import { Middleware, Bot, Message, Event } from 'mirai-foxes'
 bot.on(
   'FriendMessage',
-  new Middleware.Middleware()
-    .parser()
-    .user()
-    .filter([Middleware.userFilter([0])])
-    .matcher([Middleware.cmdMatch('hello')])
-    .done(async (data: Event.FriendMessage) => {
-      await bot.send('friend', {
-        qq: data.sender.id,
-        message: [new Message.Plain('Hello World!')]
-      })
+  Middleware.Middleware({
+    filter: ['user', [Middleware.userFilter([0])]],
+    parser: [Middleware.parseCmd],
+    matcher: [Middleware.cmdMatch('hello')]
+  })(async (data: Event.FriendMessage) => {
+    await bot.send('friend', {
+      qq: data.sender.id,
+      message: [new Message.Plain('Hello World!')]
     })
+  })
 )
 ```
 
 # 开发文档
 
-若您是在Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurryR/mirai-foxes)来获得更多信息。
+若您是在 Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm 库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurryR/mirai-foxes)来获得更多信息。
 
 点击这里访问[mirai-foxes 开发文档](./docs/README.md)。
 
@@ -49,7 +48,7 @@ bot.on(
 
 ## 支持这个项目
 
-我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果你希望支持这个项目，可以访问我们的页面来获得更多信息（~~你总不可能让我去开Patreon或者爱发电~~）。
+我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果你希望支持这个项目，可以访问我们的页面来获得更多信息（~~你总不可能让我去开 Patreon 或者爱发电~~）。
 
 如果觉得这个项目还不错的话，就动动小手给个 star 吧！
 

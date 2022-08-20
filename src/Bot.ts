@@ -674,7 +674,7 @@ export class Bot {
     }
   }
   /**
-   * 获取群成员设置(members的细化操作)
+   * 获取群成员设置
    * @param info 上下文对象。
    * @returns    群成员设置
    */
@@ -702,7 +702,7 @@ export class Bot {
     }
   }
   /**
-   * 设定群成员设置(members的细化操作)
+   * 设定群成员设置
    * @param info    上下文对象。
    * @param setting 成员设定。
    * @returns       群成员设置
@@ -716,7 +716,7 @@ export class Bot {
     }
   ): Promise<void>
   /**
-   * 设定群设置(members的细化操作)
+   * 设定群设置
    * @param info    上下文对象。
    * @param setting 群设定。
    * @returns       群成员设置
@@ -902,9 +902,7 @@ export class Bot {
   /**
    * 移除群成员，好友或群
    * @param type           要移除的类型，可以是'friend'或'group'或'member'
-   * @param option         选项
-   * @param option.qq      要移除的目标
-   * @param option.message 移除信息，默认为空串 ""，仅在'member'情况下可以指定
+   * @param option         移除选项。
    */
   async remove(type: 'friend', option: RemoveOption<UserID>): Promise<void>
   async remove(type: 'group', option: RemoveOption<GroupID>): Promise<void>

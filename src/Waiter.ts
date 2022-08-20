@@ -13,27 +13,27 @@ interface map {
  * @param extend 要附加的匹配器。
  * @returns      匹配器
  */
-export function waitFor(
+export function Waiter(
   type: 'friend',
   qq: UserID,
   extend?: Matcher<'FriendMessage'>
 ): Matcher<'FriendMessage'>
-export function waitFor(
+export function Waiter(
   type: 'member',
   qq: MemberID,
   extend?: Matcher<'GroupMessage'>
 ): Matcher<'GroupMessage'>
-export function waitFor(
+export function Waiter(
   type: 'temp',
   qq: MemberID,
   extend?: Matcher<'TempMessage'>
 ): Matcher<'TempMessage'>
-export function waitFor(
+export function Waiter(
   type: 'temp',
   qq: UserID,
   extend?: Matcher<'StrangerMessage'>
 ): Matcher<'StrangerMessage'>
-export function waitFor<T extends keyof map>(
+export function Waiter<T extends keyof map>(
   type: T,
   qq: MemberID | UserID,
   extend?: Matcher<map[T]>
@@ -54,5 +54,5 @@ export function waitFor<T extends keyof map>(
       data.sender.id == qq.qq &&
       (data as GroupMessage).sender.group.id == qq.group &&
       (!extend || extend(data as EventArg<map[T]>))
-  } else throw new Error('waitFor 参数错误')
+  } else throw new Error('Waiter 参数错误')
 }

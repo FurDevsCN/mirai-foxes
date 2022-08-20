@@ -232,23 +232,25 @@ export class File {
     })
   }
   /**
-   *  移动文件
+   * 移动文件
+   * @param dir 要移动到的文件夹。
    * @returns this
    */
-  async move(path: string): Promise<this> {
+  async move(dir: Directory): Promise<this> {
     await _moveGroupFile({
       httpUrl: this.bot.config.httpUrl,
       sessionKey: this.bot.config.sessionKey,
       group: this.target,
       path: this._detail.path,
-      moveToPath: path
+      moveToPath: dir.detail.path
     })
     // 更新 detail
     await this.update()
     return this
   }
   /**
-   *  重命名文件
+   * 重命名文件
+   * @param name 新名字
    * @returns this
    */
   async rename(name: string): Promise<this> {
@@ -277,7 +279,7 @@ export class File {
     return this
   }
   /**
-   *  文件属性
+   * 文件属性
    */
   get detail(): FileDetail {
     return this._detail
@@ -291,7 +293,7 @@ export class Directory {
   private target: GroupID
   private _detail: FileDetail
   /**
-   *  获取当前目录下的 文件/目录 数组
+   * 获取当前目录下的 文件/目录 数组
    */
   async list(): Promise<(File | Directory)[]> {
     return (
@@ -309,7 +311,7 @@ export class Directory {
     )
   }
   /**
-   *  从当前目录获得文件/目录。
+   * 从当前目录获得文件/目录。
    * @param filename 文件/目录名。
    * @returns 文件/目录
    */
