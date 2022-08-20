@@ -85,7 +85,7 @@ export interface BotJoinGroupEvent extends EventBase {
   /** 加入的群聊 */
   group: Group
   /** 邀请者（如果有） */
-  invitor: undefined | Member
+  invitor?: Member
 }
 /** Bot 主动退群事件 */
 export interface BotLeaveEventActive extends EventBase {
@@ -121,7 +121,7 @@ export interface GroupRecallEvent extends EventBase {
   /** 群聊 */
   group: Group
   /** 操作者（当没有数据时就是bot干的） */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 好友撤回消息事件 */
 export interface FriendRecallEvent extends EventBase {
@@ -163,7 +163,7 @@ export interface GroupNameChangeEvent extends EventBase {
   /** 群号 */
   group: Group
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 入群公告变更事件 */
 export interface GroupEntranceAnnouncementChangeEvent extends EventBase {
@@ -175,7 +175,7 @@ export interface GroupEntranceAnnouncementChangeEvent extends EventBase {
   /** 群聊 */
   group: Group
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 全员禁言事件 */
 export interface GroupMuteAllEvent extends EventBase {
@@ -187,7 +187,7 @@ export interface GroupMuteAllEvent extends EventBase {
   /** 群聊 */
   group: Group
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 群聊允许匿名聊天事件 */
 export interface GroupAllowAnonymousChatEvent extends EventBase {
@@ -199,7 +199,7 @@ export interface GroupAllowAnonymousChatEvent extends EventBase {
   /** 群聊 */
   group: Group
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 群聊允许坦白说事件 */
 export interface GroupAllowConfessTalkEvent extends EventBase {
@@ -223,7 +223,7 @@ export interface GroupAllowMemberInviteEvent extends EventBase {
   /** 群聊 */
   group: Group
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 成员加入事件 */
 export interface MemberJoinEvent extends EventBase {
@@ -231,7 +231,7 @@ export interface MemberJoinEvent extends EventBase {
   /** 加入的成员 */
   member: Member
   /** 邀请者（如果有） */
-  invitor: undefined | Member
+  invitor?: Member
 }
 /** 成员被踢事件 */
 export interface MemberLeaveEventKick extends EventBase {
@@ -239,7 +239,7 @@ export interface MemberLeaveEventKick extends EventBase {
   /** 被踢的成员 */
   member: Member
   /** 邀请者（如果有） */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 成员退群事件 */
 export interface MemberLeaveEventQuit extends EventBase {
@@ -285,7 +285,7 @@ export interface MemberMuteEvent extends EventBase {
   /** 被禁言的成员 */
   member: Member
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 成员被解禁事件 */
 export interface MemberUnmuteEvent extends EventBase {
@@ -293,7 +293,7 @@ export interface MemberUnmuteEvent extends EventBase {
   /** 被解禁的成员 */
   member: Member
   /** 操作者，没有数据就是Bot干的 */
-  operator: undefined | Member
+  operator?: Member
 }
 /** 成员群荣誉变更事件（不是群头衔） */
 export interface MemberHonorChangeEvent extends EventBase {
@@ -357,7 +357,7 @@ export interface OtherClientOnlineEvent extends EventBase {
   /** 哪个客户端 */
   client: OtherClient
   /** 客户端类型 */
-  kind: undefined | number
+  kind?: number
 }
 /** 其它客户端下线事件 */
 export interface OtherClientOfflineEvent extends EventBase {

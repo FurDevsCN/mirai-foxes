@@ -127,7 +127,7 @@ export class FlashImage extends MessageBase {
   /** 下载图片的url */
   url: string
   /** 本地路径，相对于JVM工作路径（不推荐） */
-  path: undefined | string
+  path?: string
   constructor({
     imageId = '',
     url = '',

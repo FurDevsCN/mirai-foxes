@@ -362,7 +362,9 @@ export function Middleware({
  * @param option.parser 解析器列表。
  * @param option.matcher 匹配器列表。
  */
-export function Middleware<T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'>({
+export function Middleware<
+  T extends 'FriendMessage' | 'GroupMessage' | 'OtherClientMessage'
+>({
   matcher,
   parser
 }: {
@@ -383,46 +385,17 @@ export function Middleware({
 }): (fn: OneProcessor) => AllProcessor {
   const m = new _Middleware()
   if (filter) {
-    if (filter[0] == 'user') {
-      if (parser) {
-        return m
-          .user()
-          .filter(filter[1] as ((data: FriendMessage) => boolean)[])
-          .parser(parser)
-          .matcher(matcher ? matcher : []).done as (
-          fn: OneProcessor
-        ) => AllProcessor
-      } else {
-        return m
-          .user()
-          .filter(filter[1] as ((data: FriendMessage) => boolean)[])
-          .matcher(matcher ? matcher : []).done as (
-          fn: OneProcessor
-        ) => AllProcessor
-      }
-    } else {
-      if (parser) {
-        return m
-          .group()
-          .filter(filter[1] as ((data: GroupMessage) => boolean)[])
-          .parser(parser)
-          .matcher(matcher ? matcher : []).done as (
-          fn: OneProcessor
-        ) => AllProcessor
-      } else {
-        return m
-          .group()
-          .filter(filter[1] as ((data: GroupMessage) => boolean)[])
-          .matcher(matcher ? matcher : []).done as (
-          fn: OneProcessor
-        ) => AllProcessor
-      }
-    }
-  } else {
-    if (parser) {
-      return m.parser(parser).matcher(matcher ? matcher : []).done
-    } else {
-      return m.matcher(matcher ? matcher : []).done
-    }
-  }
+    if (filter[0] == 'user')
+      return m
+        .user()
+        .filter(filter[1] as ((data: FriendMessage) => boolean)[])
+        .parser(parser)
+        .matcher(matcher).done as (fn: OneProcessor) => AllProcessor
+    else
+      return m
+        .group()
+        .filter(filter[1] as ((data: GroupMessage) => boolean)[])
+        .parser(parser)
+        .matcher(matcher).done as (fn: OneProcessor) => AllProcessor
+  } else return m.parser(parser).matcher(matcher).done
 }

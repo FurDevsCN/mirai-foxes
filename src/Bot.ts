@@ -141,13 +141,12 @@ interface FullConfig extends Config {
 }
 export class Bot {
   /** @private 机器人内部使用的Config。 */
-  private conf: undefined | FullConfig
+  private conf?: FullConfig = undefined
   /** @private 机器人内部使用的Websocket连接。 */
-  private ws: undefined | WebSocket
+  private ws?: WebSocket = undefined
   /** @private 内部存储的事件池 */
-  private event: Partial<
-    Record<EventType, (Processor<EventType> | undefined)[]>
-  > = {}
+  private event: Partial<Record<EventType, Partial<Processor<EventType>[]>>> =
+    {}
   /** @private wait函数的等待器集合 */
   private waiting: Partial<Record<EventType, Matcher<EventType>[]>> = {}
   /**
@@ -221,7 +220,7 @@ export class Bot {
           }
         }
         return this.event['close']?.forEach(
-          (i: undefined | Processor<'close'>): void => void (i ? i(obj) : null)
+          (i?: Processor<'close'>): void => void (i ? i(obj) : null)
         )
       },
       unexpectedResponse: obj => {
@@ -239,7 +238,7 @@ export class Bot {
           }
         }
         return this.event['unexpected-response']?.forEach(
-          (i: undefined | Processor<'unexpected-response'>): void =>
+          (i?: Processor<'unexpected-response'>): void =>
             void (i ? i(obj) : null)
         )
       }
@@ -477,7 +476,7 @@ export class Bot {
       }
     }
     this.event[value.type]?.forEach(
-      (i: undefined | Processor<T>): void => void (i ? i(value) : null)
+      (i?: Processor<T>): void => void (i ? i(value) : null)
     )
   }
   /**
@@ -921,7 +920,7 @@ export class Bot {
         sessionKey,
         target: v.group,
         memberId: v.qq,
-        msg: option.message ? option.message : ''
+        msg: option.message ?? ''
       })
     } else {
       await (type == 'friend' ? _removeFriend : _quitGroup)({
@@ -1046,8 +1045,5 @@ export class Bot {
       messageId: message.messageChain[0].id
     })
   }
-  constructor() {
-    this.conf = undefined
-    this.ws = undefined
-  }
+  constructor() {}
 }

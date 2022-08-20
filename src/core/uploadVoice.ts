@@ -46,7 +46,7 @@ export default async ({
     data: { msg: message, code, voiceId, url }
   } = responseData
   // 抛出 mirai 的异常
-  if (code != undefined && code != 0) {
+  if (code && code != 0) {
     throw new MiraiError(code, message)
   }
   return new Voice({

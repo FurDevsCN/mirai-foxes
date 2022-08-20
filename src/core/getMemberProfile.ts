@@ -22,7 +22,7 @@ export default async ({
   memberId: UserID
 }): Promise<Profile> => {
   // 请求
-  const responseData = await axios.get<Profile & { code: number; msg: string }>(
+  const responseData = await axios.get<Profile & { code?: number; msg?: string }>(
     new URL('/memberProfile', httpUrl).toString(),
     {
       params: { sessionKey, target, memberId }
@@ -30,8 +30,8 @@ export default async ({
   )
   const { data } = responseData
   // 抛出 mirai 的异常
-  if (data.code != undefined && data.code != 0) {
-    throw new MiraiError(data.code, data.msg)
+  if (data.code && data.code != 0) {
+    throw new MiraiError(data.code, data.msg ?? '')
   }
   return data
 }

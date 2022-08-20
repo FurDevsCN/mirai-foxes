@@ -21,16 +21,16 @@ export default async ({
   // 请求
   const responseData = await axios.get<
     GroupInfo & {
-      code: number
-      msg: string
+      code?: number
+      msg?: string
     }
   >(new URL('/groupConfig', httpUrl).toString(), {
     params: { sessionKey, target }
   })
   const { data } = responseData
   // 抛出 mirai 的异常
-  if (data.code != undefined && data.code != 0) {
-    throw new MiraiError(data.code, data.msg)
+  if (data.code && data.code != 0) {
+    throw new MiraiError(data.code, data.msg ?? '')
   }
   return data
 }
