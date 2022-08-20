@@ -26,6 +26,6 @@ import { Bot } from 'mirai-foxes'
   await bot.open({
     // ...
   })
-  await bot.list('member',0) // 获取群员列表
+  await bot.list('member', 0) // 获取群员列表
 })()
 ```

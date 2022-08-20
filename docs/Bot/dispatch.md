@@ -6,9 +6,9 @@ dispatch允许您触发一个事件。
 
 ```typescript
 class Bot {
-  async dispatch<T extends EventType>(
+  dispatch<T extends EventType>(
     value: EventArg<T>
-  ): Promise<void>
+  ): void
 }
 ```
 
@@ -28,6 +28,6 @@ import { Bot } from 'mirai-foxes'
   bot.on('FriendMessage',async data => {
     // 进行一些处理...
   })
-  await bot.dispatch({type: "FriendMessage",...}) // 手动触发上面那个事件
+  bot.dispatch({type: "FriendMessage",...}) // 手动触发上面那个事件
 })()
 ```

@@ -34,6 +34,6 @@ import { Bot } from 'mirai-foxes'
   await bot.open({
     // ...
   })
-  await bot.anno(0) // 获得公告列表
+  await bot.anno("list", 0) // 获得公告列表
 })()
 ```

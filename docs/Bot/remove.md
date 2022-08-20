@@ -1,6 +1,6 @@
-# unmute
+# remove
 
-unmute 允许您解禁某个用户或某个群，只有管理员可以使用。
+remove 允许您移除好友，成员或用户。
 
 ### Typescript 方法速览
 
