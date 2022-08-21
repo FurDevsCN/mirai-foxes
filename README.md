@@ -47,6 +47,12 @@ bot.on(
 
 > 本项目较 Mirai-js 多出了完整的类型注释，但本项目的 Middleware 较 Mirai-js 功能更弱（我懒得重写，~~要写暑假作业了~~）（~~加上数据放 data 里的方式太迷惑了~~），仅有部分简单中间件（~~借鉴 Ariadne~~），虽然能满足基本的命令匹配需求，但操作起来可能仍然比较棘手。
 
+[graiax](https://graiax.cn)
+
+> 从语言上来讲没有可比性，但是从特性上来讲graiax有mirai-foxes没有的很多特性，但是mirai-foxes较graiax简单很多且mirai-foxes更易上手。仅当您需要一些高级特性，或长远来讲需要高度模块化的时候才考虑graiax。
+> 若您没有熟练使用Python并希望写小项目，请更多考虑nonebot。若您还未决定好使用什么语言且希望越简单越好，请使用Javascript/Typescript侧的库（比如mirai-ts或本项目）。
+> 如果您熟练掌握Python（typing和各种设计模式），能够接受高耦合、强主观的框架且愿意勤查文档，则我们十分推荐graiax，因为它和其他库配合得很好，且大部分来自于其他bot的插件等可以被快速重用。在nonebot则会遇到严重的接口兼容性问题。
+
 ## 支持这个项目
 
 我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果您希望支持这个项目，可以访问我们的页面来获得更多信息（~~您总不可能让我去开 Patreon 或者爱发电~~）。
