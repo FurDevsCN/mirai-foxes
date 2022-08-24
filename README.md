@@ -1,8 +1,8 @@
 # mirai-foxes
 
-[![CI Status](https://github.com/FurryR/mirai-foxes/actions/workflows/typescript.yml/badge.svg)](https://github.com/FurryR/mirai-foxes/actions/workflows/typescript.yml)
-[![CodeFactor](https://www.codefactor.io/repository/github/furryr/mirai-foxes/badge)](https://www.codefactor.io/repository/github/furryr/mirai-foxes)
-[![HitCount](https://hits.dwyl.com/FurryR/mirai-foxes.svg?style=flat-square)](http://hits.dwyl.com/FurryR/mirai-foxes)
+[![CI Status](https://github.com/FurDevsCN/mirai-foxes/actions/workflows/typescript.yml/badge.svg)](https://github.com/FurDevsCN/mirai-foxes/actions/workflows/typescript.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/FurDevsCN/mirai-foxes/badge)](https://www.codefactor.io/repository/github/FurDevsCN/mirai-foxes)
+[![HitCount](https://hits.dwyl.com/FurDevsCN/mirai-foxes.svg?style=flat-square)](http://hits.dwyl.com/FurDevsCN/mirai-foxes)
 
 mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代码重写，运行在 Node.js 下的 Typescript QQ 机器人开发框架。
 
@@ -29,7 +29,7 @@ bot.on(
 
 # 开发文档
 
-若您是在 Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm 库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurryR/mirai-foxes)来获得更多信息。
+若您是在 Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm 库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurDevsCN/mirai-foxes)来获得更多信息。
 
 点击这里访问[mirai-foxes 开发文档](./docs/README.md)。
 
