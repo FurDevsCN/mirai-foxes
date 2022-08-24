@@ -139,6 +139,69 @@ interface FullConfig extends Config {
   /** 会话token。 */
   sessionKey: string
 }
+function deepClone(target: object): object {
+  const map = new WeakMap()
+
+  function isObject(target: unknown): boolean {
+    return (
+      (typeof target === 'object' && target != undefined) ||
+      typeof target === 'function'
+    )
+  }
+
+  function clone(data: object | Record<string | symbol, unknown>): object {
+    if (!isObject(data)) return data
+
+    if (data instanceof Date) return new Date(data)
+    else if (data instanceof RegExp) return new RegExp(data)
+
+    if (typeof data === 'function')
+      return new Function('return ' + data.toString())()
+
+    const exist = map.get(data)
+    if (exist) {
+      return exist
+    }
+    if (data instanceof Map) {
+      const result = new Map()
+      map.set(data, result)
+      data.forEach((val, key) => {
+        if (isObject(val)) {
+          result.set(key, clone(val))
+        } else {
+          result.set(key, val)
+        }
+      })
+      return result
+    } else if (data instanceof Set) {
+      const result = new Set()
+      map.set(data, result)
+      data.forEach(val => {
+        if (isObject(val)) {
+          result.add(clone(val))
+        } else {
+          result.add(val)
+        }
+      })
+      return result
+    } else {
+      const keys = Reflect.ownKeys(data)
+      const allDesc = Object.getOwnPropertyDescriptors(data)
+      const result: Record<string | symbol, unknown> = Object.create(
+        Object.getPrototypeOf(data),
+        allDesc
+      )
+      map.set(data, result)
+      keys.forEach(key => {
+        const val = (data as Record<string | symbol, object>)[key]
+        if (isObject(val)) result[key] = clone(val)
+        else result[key] = val
+      })
+      return result
+    }
+  }
+  return clone(target)
+}
 export class Bot {
   /** @private 机器人内部使用的Config。 */
   private conf?: FullConfig = undefined
@@ -408,7 +471,7 @@ export class Bot {
       // 此事件已被锁定
       for (const v in f) {
         // 事件被触发
-        if (f[v](value)) {
+        if (f[v](deepClone(value) as EventArg<T>)) {
           delete f[v]
           this.waiting[value.type] = f
           return
@@ -416,7 +479,8 @@ export class Bot {
       }
     }
     this.event[value.type]?.forEach(
-      (i?: Processor<T>): void => void (i ? i(value) : null)
+      (i?: Processor<T>): void =>
+        void (i ? i(deepClone(value) as EventArg<T>) : null)
     )
   }
   /**
