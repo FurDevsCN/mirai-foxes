@@ -390,12 +390,14 @@ export function Middleware({
         .user()
         .filter(filter[1] as ((data: FriendMessage) => boolean)[])
         .parser(parser)
-        .matcher(matcher).done as (fn: OneProcessor) => AllProcessor
+        .matcher(matcher)
+        .done.bind(m) as (fn: OneProcessor) => AllProcessor
     else
       return m
         .group()
         .filter(filter[1] as ((data: GroupMessage) => boolean)[])
         .parser(parser)
-        .matcher(matcher).done as (fn: OneProcessor) => AllProcessor
-  } else return m.parser(parser).matcher(matcher).done
+        .matcher(matcher)
+        .done.bind(m) as (fn: OneProcessor) => AllProcessor
+  } else return m.parser(parser).matcher(matcher).done.bind(m)
 }
