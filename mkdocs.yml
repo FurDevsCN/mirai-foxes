@@ -1,0 +1,102 @@
+site_name: mirai-foxes 开发文档
+nav:
+  - 主页: README.md
+  - Base: Base.md
+  - Middleware: Middleware.md
+  - MiraiError: MiraiError.md
+  - Waiter: Waiter.md
+  - Bot:
+      - README: Bot/README.md
+      - action: Bot/action.md
+      - anno: Bot/anno.md
+      - close: Bot/close.md
+      - config: Bot/config.md
+      - dispatch: Bot/dispatch.md
+      - essence: Bot/essence.md
+      - file: Bot/file.md
+      - get: Bot/get.md
+      - list: Bot/list.md
+      - mute: Bot/mute.md
+      - nudge: Bot/nudge.md
+      - off: Bot/off.md
+      - on: Bot/on.md
+      - one: Bot/one.md
+      - open: Bot/open.md
+      - profile: Bot/profile.md
+      - recall: Bot/recall.md
+      - remove: Bot/remove.md
+      - send: Bot/send.md
+      - set: Bot/set.md
+      - unmute: Bot/unmute.md
+      - upload: Bot/upload.md
+  - File:
+      - README: File/README.md
+      - Directory: 
+        - README: File/Directory/README.md
+        - detail: File/Directory/detail.md
+        - get: File/Directory/get.md
+        - list: File/Directory/list.md
+        - mkdir: File/Directory/mkdir.md
+        - update: File/Directory/update.md
+        - upload: File/Directory/upload.md
+      - File:
+        - README: File/File/README.md
+        - detail: File/File/detail.md
+        - download: File/File/download.md
+        - move: File/File/move.md
+        - remove: File/File/remove.md
+        - rename: File/File/rename.md
+        - update: File/File/update.md
+      - FileManager:
+        - README: File/FileManager/README.md
+        - get: File/FileManager/get.md
+        - id: File/FileManager/id.md
+        - list: File/FileManager/list.md
+        - mkdir: File/FileManager/mkdir.md
+        - upload: File/FileManager/upload.md
+      - DownloadInfo: File/DownloadInfo.md
+      - FileDetail: File/FileDetail.md
+theme:
+  name: material
+  language: zh
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  features:
+    - toc.integrate
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.top
+repo_url: https://github.com/FurDevsCN/mirai-foxes
+repo_name: FurDevsCN/mirai-foxes
+plugins:
+  - search
+markdown_extensions:
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - toc:
+      permalink: 🔗
+      title: 目录
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/FurDevsCN/mirai-foxes
