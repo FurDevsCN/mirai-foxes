@@ -29,9 +29,7 @@ bot.on(
 
 # 开发文档
 
-若您是在 Node.js 模块内看到此说明文档，很抱歉地告诉您，为了加快下载速度，npm 库不会提供`docs/`和`src/`文件夹。请访问[Github](https://github.com/FurDevsCN/mirai-foxes)来获得更多信息。
-
-点击这里访问[mirai-foxes 开发文档](./docs/README.md)。
+mirai-foxes 开发文档 -> [https://furdevscn.github.io/mirai-foxes](https://furdevscn.github.io/mirai-foxes)
 
 # 比较
 
@@ -49,9 +47,13 @@ bot.on(
 
 [Graia-Ariadne / Graia-Avilla](https://graiax.cn)
 
-> 从语言上来讲没有可比性，但是从特性上来讲 Graia 有 mirai-foxes 没有的很多特性，但是 mirai-foxes 较 Graia 简单很多且mirai-foxes更易上手。仅当您需要一些高级特性，或长远来讲需要高度模块化的时候才考虑 Graia。
-> 若您没有熟练使用 Python 并希望写小项目或通过社区插件直接组建机器人，请更多考虑 nonebot。若您还未决定好使用什么语言且希望越简单越好，请使用 Javascript/Typescript 侧的库（比如 mirai-ts 或本项目）。
-> 如果您熟练掌握 Python（typing 和各种设计模式），能够接受项目间高耦合、强主观的框架且愿意勤查文档，则我们十分推荐 Graia，因为它和其他库配合得很好，且大部分来自于其他基于 Graia 开发的插件等可以被快速重构。在 nonebot 则可能会遇到严重的接口兼容性问题。
+> 从语言上来讲没有可比性，但论设计 mirai-foxes 比 Graia 更简单。
+>
+> 如果更希望使用 Javascript 的生态或更习惯 Javascript 的设计思维，则可以选择 mirai-foxes。
+>
+> 对于 Python 聊天机器人编程框架来说，Nonebot 适合~~弱者~~刚刚接触 Python 而不了解 Python 各种特性的初学者。若您有一定 Python 基础并愿意接受较为陡峭的学习曲线，请务必选择 Graia！
+>
+> ~~（Nonebot 狗都不用，感觉还不如 mirai-js）~~
 
 ## 支持这个项目
 
