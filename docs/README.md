@@ -131,3 +131,4 @@
 - 过滤/处理消息 -> [Middleware](Middleware.md)
 - 接住 Mirai 的错误 -> [MiraiError](MiraiError.md)
 - 等待用户的消息 -> [Waiter](Waiter.md)
+- 获得用户/群头像或群封面 -> [Avatar](Avatar.md)

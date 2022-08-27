@@ -41,7 +41,7 @@ Base 是对基础类型的描述。
 - GroupInfo：群聊设置。结构如下：
 
   ```typescript
-  export interface GroupInfo {
+  interface GroupInfo {
     name: string
     confessTalk: boolean
     allowMemberInvite: boolean

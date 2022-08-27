@@ -1,6 +1,7 @@
 site_name: mirai-foxes 开发文档
 nav:
   - 主页: README.md
+  - Avatar: Avatar.md
   - Base: Base.md
   - Middleware: Middleware.md
   - MiraiError: MiraiError.md
