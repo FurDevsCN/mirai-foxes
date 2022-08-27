@@ -17,19 +17,19 @@ export async function Avatar(
  * 获得群头像或者群封面。
  * @param type  要获得的类型。
  * @param qq    群号。
- * @param cover 是否获得封面。
+ * @param cover 当指定为avatar时获得头像，否则获得封面。
  */
 export async function Avatar(
   type: 'group',
   qq: GroupID,
-  cover: boolean
+  cover: 'avatar' | 'cover'
 ): Promise<Buffer>
 export async function Avatar(
   type: 'user' | 'group',
   qq: GroupID | UserID,
-  arg: 640 | 140 | boolean
+  arg: 640 | 140 | 'avatar' | 'cover'
 ): Promise<Buffer> {
   return await (type == 'user'
     ? _getUserAvatar(qq, arg as 640 | 140)
-    : _getGroupAvatar(qq, arg as boolean))
+    : _getGroupAvatar(qq, arg == 'cover'))
 }
