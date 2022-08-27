@@ -8,7 +8,7 @@
 
 要使用此框架，您需要先配置 mirai-api-http。以下是操作方法。
 
-1. 安装 Mirai Console Loader(MCL)本体
+### 1. 安装 Mirai Console Loader(MCL)本体
 
    您需要确保您的设备已安装 Java 11+，然后从[此处](https://github.com/iTXTech/mirai-console-loader/releases)下载 Mirai Console Loader 的本体。
    没有意外的话，您将可以看到一个 zip 档案。请将其解压到您期望的位置，并在那里打开一个命令行窗口。按理来讲，新打开的命令行窗口的**工作目录**应当为您刚刚解压 zip 档案的目标位置。根据您的操作系统决定接下来要运行的命令。
@@ -27,11 +27,11 @@
 
    在完成上述操作后，您将可以看到 Mirai Console Loader 控制台。先不用急着登录，请先输入`exit`退出控制台。
 
-2. 安装 mirai-api-http
+### 2. 安装 mirai-api-http
 
    mirai-api-http 是 mirai-console 跨越语言限制，为其它语言提供接口的重要插件。您可以在[这里](https://github.com/project-mirai/mirai-api-http/releases)下载最新的版本。下载完成后，请将其放入 Mirai Console Loader 的`plugins/`目录，并按照第 1 步的方法，再次启动 Mirai Console Loader 控制台。将会自动安装您下载的插件。完成后，请使用`exit`命令退出控制台。
 
-3. 配置 mirai-api-http
+### 3. 配置 mirai-api-http
 
    您需要进入`config/net.mamoe.mirai-api-http`目录，并打开`settings.yml`。您将看到一些用 YAML 表示的设置，以下是标准设置的参考。您也可以进行额外配置来满足不同需求。
 
@@ -55,7 +55,7 @@
        reservedSyncId: -1 # 用于服务器主动发送服务时，消息同步的ID。mirai-foxes不使用ws向服务器发送消息，故可以设定为任意值。
    ```
 
-4. 登录 Mirai Console Loader
+### 4. 登录 Mirai Console Loader
 
    请按照步骤 1 的方法打开 Mirai Console Loader 控制台，并输入以下命令：
 
@@ -67,7 +67,7 @@
 
    小贴士：若您的 Bot 启用了账户锁，请先用电脑浏览器(请不要使用任何国产浏览器，比如**360 安全浏览器**或**2345 浏览器**，会出现各种奇怪的问题，并更容易损坏您的电脑，也请不要使用太旧或冷门的浏览器)访问验证链接，并用手机登录 Bot QQ，然后使用 QQ 的“扫一扫”功能扫码。除非您有 2 台手机，否则不应将链接发到手机并截屏扫码（扫截屏失败的概率近 100%，此点在 gocq 和 mirai 上都有体现）。
 
-5. 开始使用 mirai-foxes
+### 5. 开始使用 mirai-foxes
 
    首先，请新建一个文件夹用于存放您的 Bot。在此文件夹内，请使用以下命令初始化 npm 项目，这样您可以在项目内安装 mirai-foxes。
 
@@ -122,7 +122,7 @@
 
    怎么样？运行并试试效果吧。提示：发送“hello”给 Bot 试试看。
 
-# 更多
+## 更多
 
 以下是各大组件帮助文档的链接。
 
