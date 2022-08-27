@@ -1,4 +1,5 @@
 .eslintrc.json
+mkdocs.yml
 package-lock.json
 tsconfig.json
 src/
