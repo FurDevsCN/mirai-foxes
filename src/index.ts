@@ -1,4 +1,3 @@
-//import Middleware from './middleware'
 import { Bot, EventIndex, Processor, Matcher } from './Bot'
 import * as Event from './Event'
 import * as Message from './Message'
@@ -7,6 +6,7 @@ import * as Middleware from './Middleware'
 import * as File from './File'
 import { MiraiError } from './Error'
 import { Waiter } from './Waiter'
+import { Avatar } from './Avatar'
 export {
   Bot,
   EventIndex,
@@ -18,7 +18,8 @@ export {
   Base,
   Middleware,
   MiraiError,
-  Waiter
+  Waiter,
+  Avatar
 }
 export default {
   Bot,
@@ -29,5 +30,6 @@ export default {
   Base,
   Middleware,
   MiraiError,
-  Waiter
+  Waiter,
+  Avatar
 }

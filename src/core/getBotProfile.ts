@@ -2,7 +2,7 @@ import { MiraiError } from '../Error'
 import { Profile } from '../Base'
 import axios from 'axios'
 /**
- *  获取Bot信息
+ * 获取Bot信息
  * @param option 选项
  * @param option.httpUrl    mirai-api-http server 的地址
  * @param option.sessionKey 会话标识

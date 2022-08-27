@@ -134,7 +134,7 @@ export class FileManager {
     )
   }
   /**
-   *  获取文件/目录
+   * 获取文件/目录
    * @param name 名字/id。
    * @returns 文件/目录
    */
@@ -172,7 +172,7 @@ export class FileManager {
     ) as Directory
   }
   /**
-   *  上传文件
+   * 上传文件
    * @param file       文件二进制数据
    * @param filename   文件名
    */
@@ -219,7 +219,7 @@ export class File {
     })
   }
   /**
-   *  移除该文件
+   * 移除该文件
    */
   async remove(): Promise<void> {
     // TODO:mah 支持不完全，及时跟进
@@ -349,7 +349,7 @@ export class Directory {
     ) as Directory
   }
   /**
-   *  上传文件至当前实例指代的目录下
+   * 上传文件至当前实例指代的目录下
    * @param file     二选一，文件二进制数据
    * @param filename 新的文件名。
    * @returns 文件。
@@ -378,7 +378,7 @@ export class Directory {
     ) as File
   }
   /**
-   *  文件属性
+   * 文件属性
    */
   get detail(): FileDetail {
     return this._detail

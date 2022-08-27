@@ -2,7 +2,7 @@ import { MiraiError } from '../../Error'
 import axios from 'axios'
 import { GroupID } from '../../Base'
 /**
- *  移动群文件
+ * 移动群文件
  * @param option 选项
  * @param option.httpUrl    mirai-api-http server 的地址
  * @param option.sessionKey 会话标识

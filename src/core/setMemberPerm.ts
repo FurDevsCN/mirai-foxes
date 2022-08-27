@@ -2,7 +2,7 @@ import { MiraiError } from '../Error'
 import axios from 'axios'
 import { GroupID, UserID } from '../Base'
 /**
- *  设置群成员权限
+ * 设置群成员权限
  * @param option 选项
  * @param option.httpUrl      mirai-api-http server 的地址
  * @param option.sessionKey   会话标识

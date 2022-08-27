@@ -3,7 +3,7 @@ import axios from 'axios'
 import { GroupID, UserID } from '../../Base'
 import FormData from 'form-data'
 /**
- *  上传文件到服务器
+ * 上传文件到服务器
  * @param option 选项
  * @param option.httpUrl    mirai-api-http server 的地址
  * @param option.sessionKey 会话标识

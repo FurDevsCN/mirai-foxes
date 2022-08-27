@@ -3,7 +3,7 @@ import axios from 'axios'
 import { GroupID } from '../../Base'
 import { FileDetail } from 'src/File'
 /**
- *  获取群文件列表
+ * 获取群文件列表
  * @param option 选项
  * @param option.httpUrl    mirai-api-http server 的地址
  * @param option.sessionKey 会话标识
