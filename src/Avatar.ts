@@ -5,31 +5,27 @@ import { GroupID, UserID } from './Base'
  * 获得用户头像。
  * @param type 要获得的类型。
  * @param qq   用户的qq。
- * @param res  解像度。可以为640或140。
+ * @param res  解像度。可以为640或140或100。
  * @returns    图像Buffer数据。
  */
 export async function Avatar(
   type: 'user',
   qq: UserID,
-  res: 640 | 140
+  res: 640 | 140 | 100
 ): Promise<Buffer>
 /**
- * 获得群头像或者群封面。
- * @param type  要获得的类型。
- * @param qq    群号。
- * @param cover 当指定为avatar时获得头像，否则获得封面。
+ * 获得群头像。
+ * @param type 要获得的类型。
+ * @param qq   群号。
+ * @returns    图像Buffer数据。
  */
-export async function Avatar(
-  type: 'group',
-  qq: GroupID,
-  cover: 'avatar' | 'cover'
-): Promise<Buffer>
+export async function Avatar(type: 'group', qq: GroupID): Promise<Buffer>
 export async function Avatar(
   type: 'user' | 'group',
   qq: GroupID | UserID,
-  arg: 640 | 140 | 'avatar' | 'cover'
+  arg?: 640 | 140 | 100
 ): Promise<Buffer> {
   return await (type == 'user'
-    ? _getUserAvatar(qq, arg as 640 | 140)
-    : _getGroupAvatar(qq, arg == 'cover'))
+    ? _getUserAvatar(qq, arg ?? 640)
+    : _getGroupAvatar(qq))
 }

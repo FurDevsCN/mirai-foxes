@@ -3,10 +3,10 @@ import { UserID } from 'src/Base'
 /**
  * 获取用户头像。
  * @param qq  用户的QQ。
- * @param res 解像度。可选640或140。
+ * @param res 解像度。可选640或140或100。
  * @returns   图像Buffer数据。
  */
-export default async (qq: UserID, res: 640 | 140): Promise<Buffer> => {
+export default async (qq: UserID, res: 640 | 140 | 100): Promise<Buffer> => {
   const responseData = await axios.get<ArrayBuffer>(
     'https://q2.qlogo.cn/headimg_dl',
     {
