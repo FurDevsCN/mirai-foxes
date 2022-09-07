@@ -1,6 +1,6 @@
 {
   "name": "mirai-foxes",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "一个根据 Mirai-js 代码重写，运行在 Node.js 下的 Typescript QQ 机器人开发框架",
   "main": "dist/index.js",
   "scripts": {
