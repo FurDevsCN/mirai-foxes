@@ -297,33 +297,6 @@ class UserMiddleware extends MiddlewareBase {
     this._filter = filter
   }
 }
-class _Middleware extends MiddlewareBase {
-  /**
-   * 生成群组过滤器
-   * @returns this
-   */
-  group(): GroupMiddleware {
-    return new GroupMiddleware(this, new GroupFilter())
-  }
-  /**
-   * 生成用户过滤器
-   * @returns this
-   */
-  user(): UserMiddleware {
-    return new UserMiddleware(this, new UserFilter())
-  }
-  /**
-   * 生成事件处理器
-   * @param fn 处理结束后要执行的函数
-   * @returns 事件处理器
-   */
-  done(fn: OneProcessor): AllProcessor {
-    return MiddlewareBase.done(this, fn)
-  }
-  constructor() {
-    super()
-  }
-}
 /**
  * 生成用于用户消息的中间件。
  * @param option 选项。
@@ -383,21 +356,24 @@ export function Middleware({
     ((data: FriendMessage) => boolean)[] | ((data: GroupMessage) => boolean)[]
   ]
 }): (fn: OneProcessor) => AllProcessor {
-  const m = new _Middleware()
   if (filter) {
-    if (filter[0] == 'user')
-      return m
-        .user()
+    if (filter[0] == 'user') {
+      const s = new UserMiddleware(new MiddlewareBase(),new UserFilter())
         .filter(filter[1] as ((data: FriendMessage) => boolean)[])
         .parser(parser)
         .matcher(matcher)
-        .done.bind(m) as (fn: OneProcessor) => AllProcessor
-    else
-      return m
-        .group()
+      return s
+        .done.bind(s) as (fn: OneProcessor) => AllProcessor
+    } else {
+      const s = new GroupMiddleware(new MiddlewareBase(),new GroupFilter())
         .filter(filter[1] as ((data: GroupMessage) => boolean)[])
         .parser(parser)
         .matcher(matcher)
-        .done.bind(m) as (fn: OneProcessor) => AllProcessor
-  } else return m.parser(parser).matcher(matcher).done.bind(m)
+      return s
+        .done.bind(s) as (fn: OneProcessor) => AllProcessor
+    }
+  } else {
+    const s = new MiddlewareBase().parser(parser).matcher(matcher)
+    return MiddlewareBase.done.bind(null,s)
+  }
 }
