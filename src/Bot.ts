@@ -139,69 +139,6 @@ interface FullConfig extends Config {
   /** 会话token。 */
   sessionKey: string
 }
-function deepClone(target: object): object {
-  const map = new WeakMap()
-
-  function isObject(target: unknown): boolean {
-    return (
-      (typeof target === 'object' && target != undefined) ||
-      typeof target === 'function'
-    )
-  }
-
-  function clone(data: object | Record<string | symbol, unknown>): object {
-    if (!isObject(data)) return data
-
-    if (data instanceof Date) return new Date(data)
-    else if (data instanceof RegExp) return new RegExp(data)
-
-    if (typeof data === 'function')
-      return new Function('return ' + data.toString())()
-
-    const exist = map.get(data)
-    if (exist) {
-      return exist
-    }
-    if (data instanceof Map) {
-      const result = new Map()
-      map.set(data, result)
-      data.forEach((val, key) => {
-        if (isObject(val)) {
-          result.set(key, clone(val))
-        } else {
-          result.set(key, val)
-        }
-      })
-      return result
-    } else if (data instanceof Set) {
-      const result = new Set()
-      map.set(data, result)
-      data.forEach(val => {
-        if (isObject(val)) {
-          result.add(clone(val))
-        } else {
-          result.add(val)
-        }
-      })
-      return result
-    } else {
-      const keys = Reflect.ownKeys(data)
-      const allDesc = Object.getOwnPropertyDescriptors(data)
-      const result: Record<string | symbol, unknown> = Object.create(
-        Object.getPrototypeOf(data),
-        allDesc
-      )
-      map.set(data, result)
-      keys.forEach(key => {
-        const val = (data as Record<string | symbol, object>)[key]
-        if (isObject(val)) result[key] = clone(val)
-        else result[key] = val
-      })
-      return result
-    }
-  }
-  return clone(target)
-}
 export class Bot {
   /** @private 机器人内部使用的Config。 */
   private conf?: FullConfig = undefined
@@ -212,6 +149,13 @@ export class Bot {
     {}
   /** @private wait函数的等待器集合 */
   private waiting: Partial<Record<EventType, Matcher<EventType>[]>> = {}
+  private static clone<T>(data: T): T {
+    if (typeof data !== 'object' || data == undefined) return data
+    const result: Record<string | symbol, unknown> = {}
+    for (const [key, value] of Object.entries(data))
+      result[key] = Bot.clone(value)
+    return result as T
+  }
   /**
    * @private ws监听初始化。
    */
@@ -440,7 +384,7 @@ export class Bot {
   async nudge(qq: UserID | MemberID): Promise<void> {
     // 检查对象状态
     if (!this.conf) throw new Error('nudge 请先调用 open，建立一个会话')
-    // 需要使用的参数
+    // 需要使用的参数l
     const { httpUrl, sessionKey } = this.conf
     if (typeof qq != 'number') {
       await _sendNudge({
@@ -466,12 +410,12 @@ export class Bot {
    */
   dispatch<T extends EventType>(value: EventArg<T>): void {
     // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
-    const f = this.waiting[value.type as EventType]
-    if (f) {
+    const f = this.waiting[value.type]
+    if (f && f.length > 0) {
       // 此事件已被锁定
       for (const v in f) {
         // 事件被触发
-        if (f[v](deepClone(value) as EventArg<T>)) {
+        if (f[v](Bot.clone(value))) {
           delete f[v]
           this.waiting[value.type] = f
           return
@@ -480,7 +424,7 @@ export class Bot {
     }
     this.event[value.type]?.forEach(
       (i?: Processor<T>): void =>
-        void (i ? i(deepClone(value) as EventArg<T>) : null)
+        void (i ? i(Bot.clone(value)) : null)
     )
   }
   /**
@@ -589,7 +533,7 @@ export class Bot {
    * 上传图片至服务器，返回指定 type 的 imageId，url，及 path
    * @param type          "friend" 或 "group" 或 "temp"
    * @param option        选项
-   * @param option.img    图片二进制数据
+   * @param option.data    图片二进制数据
    * @param option.suffix 图片文件后缀名，默认为"jpg"
    * @returns             擦除类型的 Image 或 FlashImage 对象，可经实际构造后插入到message中。
    */
@@ -603,7 +547,7 @@ export class Bot {
    * 上传语音至服务器，返回 voiceId, url 及 path
    * @param type          "friend" 或 "group" 或 "temp"。
    * @param option        选项
-   * @param option.voice  语音二进制数据。
+   * @param option.data  语音二进制数据。
    * @param option.suffix 语音文件后缀名，默认为"amr"。
    * @returns             Voice 对象，可直接插入到message中。
    */
