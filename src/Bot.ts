@@ -148,7 +148,8 @@ export class Bot {
   private event: Partial<Record<EventType, Partial<Processor<EventType>[]>>> =
     {}
   /** @private wait函数的等待器集合 */
-  private waiting: Partial<Record<EventType, Matcher<EventType>[]>> = {}
+  private waiting: Partial<Record<EventType, Partial<Matcher<EventType>[]>>> =
+    {}
   private static clone<T>(data: T): T {
     if (typeof data !== 'object' || data == undefined) return data
     const result: Record<string | symbol, unknown> = {}
@@ -411,20 +412,22 @@ export class Bot {
   dispatch<T extends EventType>(value: EventArg<T>): void {
     // 如果当前到达的事件拥有处理器，则依次调用所有该事件的处理器
     const f = this.waiting[value.type]
-    if (f && f.length > 0) {
+    if (f) {
       // 此事件已被锁定
       for (const v in f) {
-        // 事件被触发
-        if (f[v](Bot.clone(value))) {
-          delete f[v]
-          this.waiting[value.type] = f
-          return
+        let d = f[v]
+        if (d) {
+          // 事件被触发
+          if (d(Bot.clone(value))) {
+            f[v] = undefined
+            this.waiting[value.type] = f
+            return
+          }
         }
       }
     }
     this.event[value.type]?.forEach(
-      (i?: Processor<T>): void =>
-        void (i ? i(Bot.clone(value)) : null)
+      (i?: Processor<T>): void => void (i ? i(Bot.clone(value)) : null)
     )
   }
   /**
