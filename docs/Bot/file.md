@@ -25,8 +25,8 @@ import { Bot } from 'mirai-foxes'
 ;(async () => {
   let bot: Bot = new Bot()
   await bot.open({
-    // ...
+    // 打开我们的烧0 Bot。
   })
-  bot.file(0) // 获取群文件管理器
+  bot.file(0) // 看看群里都存了点什么几把怪东西。
 })()
 ```
