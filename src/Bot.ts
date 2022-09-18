@@ -437,7 +437,6 @@ export class Bot {
   on<T extends EventType>(type: T, callback: Processor<T>): EventIndex<T> {
     // 检查对象状态
     if (!this.conf) throw new Error('on 请先调用 open，建立一个会话')
-    this.event[type] || (this.event[type] = [])
     // 生成EventID用于标识。
     let t = this.event[type]
     if (!t) t = []
