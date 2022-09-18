@@ -31,7 +31,7 @@ import { Bot, EventIndex } from 'mirai-foxes'
 (async () => {
   let bot: Bot = new Bot()
   await bot.open({
-    // ...
+    // As usual, open your burning 0 bot
   })
   let d: EventIndex<'FriendMessage'> = bot.on('FriendMessage',async data => {
     // 不会被触发，因为被移除了
