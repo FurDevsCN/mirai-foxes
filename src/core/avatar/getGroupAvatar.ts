@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { GroupID } from 'src/Base'
+import { GroupID } from '../../Base'
 /**
  * 获取群头像。
  * @param qq    群号。

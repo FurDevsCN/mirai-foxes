@@ -1,7 +1,7 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
 import { Message } from '../Event'
-import { GroupID, UserID } from 'src/Base'
+import { GroupID, UserID } from '../Base'
 /**
  * 由messageId取信息
  * @param option 选项

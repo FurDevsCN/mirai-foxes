@@ -29,7 +29,7 @@ export default async ({
   form.append('sessionKey', sessionKey)
   form.append('type', type)
   // filename 指定了文件名
-  form.append('img', img, { filename: `image.${suffix}` })
+  form.append('img', img, `image.${suffix}`)
   // 请求
   const responseData = await axios.post<{
     msg: string

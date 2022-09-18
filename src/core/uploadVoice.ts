@@ -30,7 +30,7 @@ export default async ({
   form.append('sessionKey', sessionKey)
   form.append('type', type)
   // filename 指定了文件名
-  form.append('voice', voice, { filename: `audio.${suffix}` })
+  form.append('voice', voice, `audio.${suffix}`)
   // 请求
   const responseData = await axios.post<{
     msg: string

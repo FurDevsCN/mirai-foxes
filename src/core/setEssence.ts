@@ -1,6 +1,6 @@
 import { MiraiError } from '../Error'
 import axios from 'axios'
-import { GroupID } from 'src/Base'
+import { GroupID } from '../Base'
 /**
  * 将由 messageId 确定的消息设置为本群精华消息
  * @param option 选项。

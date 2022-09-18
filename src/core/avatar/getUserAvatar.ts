@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { UserID } from 'src/Base'
+import { UserID } from '../../Base'
 /**
  * 获取用户头像。
  * @param qq  用户的QQ。
