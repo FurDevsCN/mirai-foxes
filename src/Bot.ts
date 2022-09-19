@@ -150,13 +150,6 @@ export class Bot {
   /** @private wait函数的等待器集合 */
   private waiting: Partial<Record<EventType, Partial<Matcher<EventType>[]>>> =
     {}
-  private static clone<T>(data: T): T {
-    if (typeof data !== 'object' || data == undefined) return data
-    const result: Record<string | symbol, unknown> = {}
-    for (const [key, value] of Object.entries(data))
-      result[key] = Bot.clone(value)
-    return result as T
-  }
   /**
    * @private ws监听初始化。
    */
@@ -418,7 +411,7 @@ export class Bot {
         let d = f[v]
         if (d) {
           // 事件被触发
-          if (d(Bot.clone(value))) {
+          if (d(Object.create(value))) {
             f[v] = undefined
             this.waiting[value.type] = f
             return
@@ -427,7 +420,7 @@ export class Bot {
       }
     }
     this.event[value.type]?.forEach(
-      (i?: Processor<T>): void => void (i ? i(Bot.clone(value)) : null)
+      (i?: Processor<T>): void => void (i ? i(Object.create(value)) : null)
     )
   }
   /**
