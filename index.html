@@ -1,0 +1,1418 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.2">
+    
+    
+      
+        <title>mirai-foxes 开发文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.9f9400aa.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mirai-foxes" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="." title="mirai-foxes 开发文档" class="md-header__button md-logo" aria-label="mirai-foxes 开发文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mirai-foxes 开发文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              主页
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FurDevsCN/mirai-foxes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    FurDevsCN/mirai-foxes
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="mirai-foxes 开发文档" class="md-nav__button md-logo" aria-label="mirai-foxes 开发文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    mirai-foxes 开发文档
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FurDevsCN/mirai-foxes" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    FurDevsCN/mirai-foxes
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          主页
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        主页
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mirai-api-http" class="md-nav__link">
+    安装并配置 mirai-api-http
+  </a>
+  
+    <nav class="md-nav" aria-label="安装并配置 mirai-api-http">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mirai-console-loadermcl" class="md-nav__link">
+    1. 安装 Mirai Console Loader(MCL)本体
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-mirai-api-http" class="md-nav__link">
+    2. 安装 mirai-api-http
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mirai-api-http" class="md-nav__link">
+    3. 配置 mirai-api-http
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mirai-console-loader" class="md-nav__link">
+    4. 登录 Mirai Console Loader
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-mirai-foxes" class="md-nav__link">
+    5. 开始使用 mirai-foxes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    更多
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Avatar/" class="md-nav__link">
+        Avatar
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Base/" class="md-nav__link">
+        Base
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Middleware/" class="md-nav__link">
+        Middleware
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MiraiError/" class="md-nav__link">
+        MiraiError
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Waiter/" class="md-nav__link">
+        Waiter
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7">
+          Bot
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Bot" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Bot
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/" class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/action/" class="md-nav__link">
+        action
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/anno/" class="md-nav__link">
+        anno
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/close/" class="md-nav__link">
+        close
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/dispatch/" class="md-nav__link">
+        dispatch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/essence/" class="md-nav__link">
+        essence
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/file/" class="md-nav__link">
+        file
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/get/" class="md-nav__link">
+        get
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/list/" class="md-nav__link">
+        list
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/mute/" class="md-nav__link">
+        mute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/nudge/" class="md-nav__link">
+        nudge
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/off/" class="md-nav__link">
+        False
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/on/" class="md-nav__link">
+        True
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/one/" class="md-nav__link">
+        one
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/open/" class="md-nav__link">
+        open
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/profile/" class="md-nav__link">
+        profile
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/recall/" class="md-nav__link">
+        recall
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/remove/" class="md-nav__link">
+        remove
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/send/" class="md-nav__link">
+        send
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/set/" class="md-nav__link">
+        set
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/unmute/" class="md-nav__link">
+        unmute
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Bot/upload/" class="md-nav__link">
+        upload
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_8" type="checkbox" id="__nav_8" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8">
+          File
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="File" data-md-level="1">
+        <label class="md-nav__title" for="__nav_8">
+          <span class="md-nav__icon md-icon"></span>
+          File
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/" class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_8_2" type="checkbox" id="__nav_8_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_2">
+          Directory
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Directory" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_2">
+          <span class="md-nav__icon md-icon"></span>
+          Directory
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/" class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/detail/" class="md-nav__link">
+        detail
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/get/" class="md-nav__link">
+        get
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/list/" class="md-nav__link">
+        list
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/mkdir/" class="md-nav__link">
+        mkdir
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/update/" class="md-nav__link">
+        update
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/Directory/upload/" class="md-nav__link">
+        upload
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_8_3" type="checkbox" id="__nav_8_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_3">
+          File
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="File" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_3">
+          <span class="md-nav__icon md-icon"></span>
+          File
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/" class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/detail/" class="md-nav__link">
+        detail
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/download/" class="md-nav__link">
+        download
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/move/" class="md-nav__link">
+        move
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/remove/" class="md-nav__link">
+        remove
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/rename/" class="md-nav__link">
+        rename
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/File/update/" class="md-nav__link">
+        update
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" data-md-toggle="__nav_8_4" type="checkbox" id="__nav_8_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_8_4">
+          FileManager
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="FileManager" data-md-level="2">
+        <label class="md-nav__title" for="__nav_8_4">
+          <span class="md-nav__icon md-icon"></span>
+          FileManager
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/" class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/get/" class="md-nav__link">
+        get
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/id/" class="md-nav__link">
+        id
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/list/" class="md-nav__link">
+        list
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/mkdir/" class="md-nav__link">
+        mkdir
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileManager/upload/" class="md-nav__link">
+        upload
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/DownloadInfo/" class="md-nav__link">
+        DownloadInfo
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="File/FileDetail/" class="md-nav__link">
+        FileDetail
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/FurDevsCN/mirai-foxes/edit/master/docs/README.md" title="编辑此页" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="mirai-foxes">感谢使用 mirai-foxes！<a class="headerlink" href="#mirai-foxes" title="Permanent link">🔗</a></h1>
+<p>此页面用于指导您进行使用本项目的事先配置，并连结到各个组件的文档页面。</p>
+<p>如果您不是初学者，点击<a href="#更多">这里</a>跳到详细文档。</p>
+<h2 id="mirai-api-http">安装并配置 mirai-api-http<a class="headerlink" href="#mirai-api-http" title="Permanent link">🔗</a></h2>
+<p>要使用此框架，您需要先配置 mirai-api-http。以下是操作方法。</p>
+<h3 id="1-mirai-console-loadermcl">1. 安装 Mirai Console Loader(MCL)本体<a class="headerlink" href="#1-mirai-console-loadermcl" title="Permanent link">🔗</a></h3>
+<p>您需要确保您的设备已安装 Java 11+，然后从<a href="https://github.com/iTXTech/mirai-console-loader/releases">此处</a>下载 Mirai Console Loader 的本体。
+   没有意外的话，您将可以看到一个 zip 档案。请将其解压到您期望的位置，并在那里打开一个命令行窗口。按理来讲，新打开的命令行窗口的<strong>工作目录</strong>应当为您刚刚解压 zip 档案的目标位置。根据您的操作系统决定接下来要运行的命令。</p>
+<p>Windows：</p>
+<div class="highlight"><pre><span></span><code><span class="p">.\</span><span class="n">mcl</span><span class="p">.</span><span class="n">cmd</span>
+</code></pre></div>
+<p>Linux:</p>
+<div class="highlight"><pre><span></span><code>sh ./mcl
+</code></pre></div>
+<p>在完成上述操作后，您将可以看到 Mirai Console Loader 控制台。先不用急着登录，请先输入<code>exit</code>退出控制台。</p>
+<h3 id="2-mirai-api-http">2. 安装 mirai-api-http<a class="headerlink" href="#2-mirai-api-http" title="Permanent link">🔗</a></h3>
+<p>mirai-api-http 是 mirai-console 跨越语言限制，为其它语言提供接口的重要插件。您可以在<a href="https://github.com/project-mirai/mirai-api-http/releases">这里</a>下载最新的版本。下载完成后，请将其放入 Mirai Console Loader 的<code>plugins/</code>目录，并按照第 1 步的方法，再次启动 Mirai Console Loader 控制台。将会自动安装您下载的插件。完成后，请使用<code>exit</code>命令退出控制台。</p>
+<h3 id="3-mirai-api-http">3. 配置 mirai-api-http<a class="headerlink" href="#3-mirai-api-http" title="Permanent link">🔗</a></h3>
+<p>您需要进入<code>config/net.mamoe.mirai-api-http</code>目录，并打开<code>settings.yml</code>。您将看到一些用 YAML 表示的设置，以下是标准设置的参考。您也可以进行额外配置来满足不同需求。</p>
+<div class="highlight"><pre><span></span><code><span class="nt">adapters</span><span class="p">:</span><span class="w"> </span><span class="c1">#这里是“适配器”的配置，用于指定mirai-api-http要使用的协议。由于websocket协议目前还不支持上传文件，请同时使用2个。</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span><span class="w"> </span><span class="c1"># 使用http API(mirai-foxes使用这个发送请求)</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws</span><span class="w"> </span><span class="c1"># 使用ws API(mirai-foxes使用这个接收事件)</span><span class="w"></span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"> </span><span class="c1"># 是否启用排错模式。启用后将会在控制台输出更为详细的信息。</span><span class="w"></span>
+<span class="nt">enableVerify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># 是否启用连接验证。为避免恶意的用户或应用程序连接您的机器人，建议保持打开状态。</span><span class="w"></span>
+<span class="nt">verifyKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FurDevsCN</span><span class="w"> </span><span class="c1"># 验证密钥。请牢记您的验证密钥，因为mirai-foxes连接mirai-api-http时必须指定此项。</span><span class="w"></span>
+<span class="nt">singleMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"> </span><span class="c1"># 是否启用单会话模式。启用后只能同时使用一个实例，且mirai-foxes不兼容，请勿开启。</span><span class="w"></span>
+<span class="nt">cacheSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span><span class="w"> </span><span class="c1"># 消息缓存的大小，越大的数值可以让messageId失效更慢，但可能会占用更多的系统资源。</span><span class="w"></span>
+<span class="nt">adapterSettings</span><span class="p">:</span><span class="w"> </span><span class="c1"># 详细的适配器设置。</span><span class="w"></span>
+<span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w"> </span><span class="c1"># HTTP API设定。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span><span class="w"> </span><span class="c1"># HTTP API的网络位置。如果希望mirai-foxes和mirai-api-http在同一台设备上运行，请设定为localhost，否则您可以使用IP地址。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span><span class="w"> </span><span class="c1"># HTTP API的端口。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">cors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="err">*</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># 跨域策略。若不设定此项，则在浏览器端对HTTP API的请求可能会因同源策略而无法正常使用。</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ws</span><span class="p">:</span><span class="w"> </span><span class="c1"># Websocket API 设定。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span><span class="w"> </span><span class="c1"># Websocket API的网络位置。说明同HTTP API host。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span><span class="w"> </span><span class="c1"># Websocket API的端口。因为HTTP可以自动升级为Websocket，且HTTP API和Websocket API路径无冲突，故允许重复端口。</span><span class="w"></span>
+<span class="w">    </span><span class="nt">reservedSyncId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-1</span><span class="w"> </span><span class="c1"># 用于服务器主动发送服务时，消息同步的ID。mirai-foxes不使用ws向服务器发送消息，故可以设定为任意值。</span><span class="w"></span>
+</code></pre></div>
+<h3 id="4-mirai-console-loader">4. 登录 Mirai Console Loader<a class="headerlink" href="#4-mirai-console-loader" title="Permanent link">🔗</a></h3>
+<p>请按照步骤 1 的方法打开 Mirai Console Loader 控制台，并输入以下命令：</p>
+<div class="highlight"><pre><span></span><code>/login <span class="o">[</span>Bot的QQ号<span class="o">]</span> <span class="o">[</span>密码<span class="o">]</span>
+</code></pre></div>
+<p>然后等待 Mirai Console Loader 登录。</p>
+<p>小贴士：若您的 Bot 启用了账户锁，请先用电脑浏览器(请不要使用任何国产浏览器，比如<strong>360 安全浏览器</strong>或<strong>2345 浏览器</strong>，会出现各种奇怪的问题，并更容易损坏您的电脑，也请不要使用太旧或冷门的浏览器)访问验证链接，并用手机登录 Bot QQ，然后使用 QQ 的“扫一扫”功能扫码。除非您有 2 台手机，否则不应将链接发到手机并截屏扫码（扫截屏失败的概率近 100%，此点在 gocq 和 mirai 上都有体现）。</p>
+<h3 id="5-mirai-foxes">5. 开始使用 mirai-foxes<a class="headerlink" href="#5-mirai-foxes" title="Permanent link">🔗</a></h3>
+<p>首先，请新建一个文件夹用于存放您的 Bot。在此文件夹内，请使用以下命令初始化 npm 项目，这样您可以在项目内安装 mirai-foxes。</p>
+<div class="highlight"><pre><span></span><code>npm init
+</code></pre></div>
+<p>注意：您可以在完成后发布到 Github 或其它开源代码托管站点（<strong>谨防隐私泄露</strong>）。我们提倡您分享您的成果，来维护开源社区的健康与活跃，这样您也可以使用开源社区的代码。</p>
+<p><strong>若对本框架进行任何修改，则无论是提供服务还是分发，您都必须开源源代码。</strong></p>
+<p>在项目配置完成后，请使用以下命令安装 mirai-foxes：</p>
+<div class="highlight"><pre><span></span><code>npm install mirai-foxes <span class="c1"># 简写 npm i mirai-foxes</span>
+</code></pre></div>
+<p>现在便可以开始使用 mirai-foxes 了。如果您是初学者，您还可以创建一个 hello-world.js 并写入以下内容：</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">foxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;mirai-foxes&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="c1">// 如果您在package.json内配置了&quot;type&quot;:&quot;module&quot;，则可以使用以下方式(ES6)导入mirai-foxes：</span><span class="w"></span>
+<span class="c1">// import * as foxes from &#39;mirai-foxes&#39;</span><span class="w"></span>
+<span class="c1">// 此处匿名async函数是为了更方便地使用await而无需用Promise then导致代码可读性下降</span><span class="w"></span>
+<span class="p">;(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// 新建Bot实例</span><span class="w"></span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">bot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">foxes</span><span class="p">.</span><span class="nx">Bot</span><span class="p">()</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// 打开连接</span><span class="w"></span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">bot</span><span class="p">.</span><span class="nx">open</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">httpUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// http API 地址，前面要加http协议头</span><span class="w"></span>
+<span class="w">    </span><span class="nx">wsUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Websocket API 地址，前面要加ws协议头</span><span class="w"></span>
+<span class="w">    </span><span class="nx">verifyKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;FurDevsCN&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// 您的连接验证密码(verifyKey)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">qq</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="c1">// 刚刚在MCL登录的Bot的QQ号</span><span class="w"></span>
+<span class="w">  </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// 监听事件</span><span class="w"></span>
+<span class="w">  </span><span class="nx">bot</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s1">&#39;FriendMessage&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// 好友消息</span><span class="w"></span>
+<span class="w">    </span><span class="nx">Middleware</span><span class="p">.</span><span class="nx">Middleware</span><span class="p">({</span><span class="w"></span>
+<span class="w">      </span><span class="nx">filter</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">Middleware</span><span class="p">.</span><span class="nx">userFilter</span><span class="p">([</span><span class="mf">0</span><span class="p">])]],</span><span class="w"> </span><span class="c1">// 只监听群号为0的群</span><span class="w"></span>
+<span class="w">      </span><span class="nx">parser</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Middleware</span><span class="p">.</span><span class="nx">parseCmd</span><span class="p">],</span><span class="w"></span>
+<span class="w">      </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">Middleware</span><span class="p">.</span><span class="nx">cmdMatch</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)]</span><span class="w"></span>
+<span class="w">    </span><span class="p">})(</span><span class="k">async</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// 发送消息</span><span class="w"></span>
+<span class="w">      </span><span class="k">await</span><span class="w"> </span><span class="nx">bot</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s1">&#39;friend&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">qq</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">sender</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="ow">new</span><span class="w"> </span><span class="nx">Message</span><span class="p">.</span><span class="nx">Plain</span><span class="p">(</span><span class="s1">&#39;mirai-foxes、行きます！&#39;</span><span class="p">)]</span><span class="w"></span>
+<span class="w">      </span><span class="p">})</span><span class="w"></span>
+<span class="w">    </span><span class="p">})</span><span class="w"></span>
+<span class="w">  </span><span class="p">)</span><span class="w"></span>
+<span class="p">})()</span><span class="w"></span>
+</code></pre></div>
+<p>怎么样？运行并试试效果吧。提示：发送“hello”给 Bot 试试看。</p>
+<h2 id="_1">更多<a class="headerlink" href="#_1" title="Permanent link">🔗</a></h2>
+<p>以下是各大组件帮助文档的链接。</p>
+<ul>
+<li>基础数据类型 -&gt; <a href="Base/">Base</a></li>
+<li>机器人的操作 -&gt; <a href="Bot/">Bot</a></li>
+<li>过滤/处理消息 -&gt; <a href="Middleware/">Middleware</a></li>
+<li>接住 Mirai 的错误 -&gt; <a href="MiraiError/">MiraiError</a></li>
+<li>等待用户的消息 -&gt; <a href="Waiter/">Waiter</a></li>
+<li>获得用户/群头像或群封面 -&gt; <a href="Avatar/">Avatar</a></li>
+</ul>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            回到页面顶部
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="页脚" >
+      
+      
+        
+        <a href="Avatar/" class="md-footer__link md-footer__link--next" aria-label="下一页: Avatar" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              Avatar
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/FurDevsCN/mirai-foxes" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["toc.integrate", "navigation.instant", "navigation.tracking", "navigation.expand", "navigation.top"], "search": "assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.39f04ddb.min.js"></script>
+      
+    
+  </body>
+</html>
