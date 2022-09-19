@@ -76,4 +76,4 @@ mirai-foxes 开发文档 -> [https://furdevscn.github.io/mirai-foxes](https://fu
 
 **Nullqwertyuiop** 是文档的重要示范对象。由于文档是由多人编辑的，且未经过质量审查，难免包含有对其本人冒犯性的语句。在此对他的包容表示由衷感谢。此外，他还负责了 mirai-foxes 的文档部署，非常感谢。
 
-**福瑞之家** 为此框架的 debug 提供了部分支援。在此表示感谢。
+**FurryHome** 为此框架的 debug 提供了部分支援。在此表示感谢。
