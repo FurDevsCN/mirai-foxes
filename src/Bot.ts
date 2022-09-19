@@ -408,7 +408,7 @@ export class Bot {
     if (f) {
       // 此事件已被锁定
       for (const v in f) {
-        let d = f[v]
+        const d = f[v]
         if (d) {
           // 事件被触发
           if (d(Object.create(value))) {
