@@ -10,7 +10,7 @@ mirai-foxes，一个根据 [Mirai-js](https://github.com/Drincann/Mirai-js) 代�
 
 适合那些觉得 mirai-ts 不够顺手又无法忍受 Mirai-js 类型注释不足的 Devs。同样也适合 Mirai-js 用户！
 
-如果你希望体验完整的demo，看看[foxes-awesome](https://github.com/FurDevsCN/foxes-awesome)。
+如果你希望体验完整的 demo，看看 [foxes-awesome](https://github.com/FurDevsCN/foxes-awesome)。
 
 ```typescript
 import { Middleware, Bot, Message, Event } from 'mirai-foxes'
@@ -49,28 +49,27 @@ mirai-foxes 开发文档 -> [https://furdevscn.github.io/mirai-foxes](https://fu
 
 [Graia-Ariadne / Graia-Avilla](https://graiax.cn)
 
-> 从语言上来讲没有可比性，但论设计 mirai-foxes 比 Graia 更简单。
+> mirai-foxes 论功能上完全不如 Graia。
 >
-> 如果更希望使用 Javascript 的生态或更习惯 Javascript 的设计思维，则可以选择 mirai-foxes。
+> mirai-foxes 仅模仿了 Graia 的小部分基本功能，这样可以在保持不错可读性的同时，降低学习成本。
 >
-> 对于 Python 聊天机器人编程框架来说，Nonebot 适合~~弱者~~刚刚接触 Python 而不了解 Python 各种特性的初学者。若您有一定 Python 基础并愿意接受较为陡峭的学习曲线，请务必选择 Graia！
->
-> ~~（Nonebot 狗都不用，感觉还不如 mirai-js）~~
+> 我们更推荐在 Python 机器人编程中使用 Graia。
 
 ## 支持这个项目
 
-我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果您希望支持这个项目，可以访问我们的页面来获得更多信息（~~您总不可能让我去开 Patreon 或者爱发电~~）。
+我是[FurDevsCN](https://github.com/FurDevsCN)开发组的一名成员。如果您希望支持这个项目，可以访问我们的页面来获得更多信息（~~总不可能让我去开 Patreon 或者爱发电吧~~）。
 
 如果觉得这个项目还不错的话，就动动小手给个 star 吧！
 
 ## 感谢
 
-### Code editing. **Redefined.**
+### hyperextensible Vim-based text editor
 
-本项目使用免费且自由的 [Visual Studio Code](https://code.visualstudio.com/) 完成开发。
+本项目使用免费且自由的 [Neovim](https://neovim.io/) 完成开发。
 
 同时也推荐您使用 [JetBrains](https://www.jetbrains.com/) 开发工具。
 
+或者您也可以看看不错的 [Visual Studio Code](https://code.visualstudio.com/)。
 
 **Graia Framework** 的开发者为此框架的 API 设计提出了重要建议，在此表示感谢。
 
