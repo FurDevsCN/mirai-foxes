@@ -467,7 +467,7 @@ interface Events {
   MemberUnmuteEvent: MemberUnmuteEvent
   MemberHonorChangeEvent: MemberHonorChangeEvent
   NewFriendRequestEvent: NewFriendRequestEvent
-  MemberJoinRequestEvent: MemberJoinEvent
+  MemberJoinRequestEvent: MemberJoinRequestEvent
   BotInvitedJoinGroupRequestEvent: BotInvitedJoinGroupRequestEvent
   OtherClientOnlineEvent: OtherClientOnlineEvent
   OtherClientOfflineEvent: OtherClientOfflineEvent
