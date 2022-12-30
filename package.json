@@ -6,14 +6,14 @@
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
   "scripts": {
     "lint": "eslint ./src",
     "lint:type": "tsc --noEmit -p ./tsconfig.json",
     "fix": "eslint ./src --fix",
-    "build": "tsup",
+    "build": "tsup"
   },
   "publishConfig": {
     "access": "public",
