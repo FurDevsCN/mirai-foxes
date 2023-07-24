@@ -32,6 +32,6 @@ jobs:
         run: npm run build --if-present
       - name: Publish package
         uses: JS-DevTools/npm-publish@v2
-        if: env.NPM_TOKEN != ''
+        # if: env.NPM_TOKEN != ''
         with:
           token: ${{ env.NPM_TOKEN }}
