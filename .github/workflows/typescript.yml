@@ -30,7 +30,8 @@ jobs:
         run: npm ci
       - name: Build mirai-foxes
         run: npm run build --if-present
-      - uses: JS-DevTools/npm-publish@v2
+      - name: Publish package
+        uses: JS-DevTools/npm-publish@v2
         if: env.NPM_TOKEN != null
         with:
           token: ${{ env.NPM_TOKEN }}
