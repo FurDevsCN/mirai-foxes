@@ -19,8 +19,8 @@ nav:
       - list: Bot/list.md
       - mute: Bot/mute.md
       - nudge: Bot/nudge.md
-      - off: Bot/off.md
-      - on: Bot/on.md
+      - "off": Bot/off.md
+      - "on": Bot/on.md
       - one: Bot/one.md
       - open: Bot/open.md
       - profile: Bot/profile.md
