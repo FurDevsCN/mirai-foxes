@@ -334,6 +334,8 @@ export interface MemberJoinRequestEvent extends EventBase {
   nick: string
   /** 验证信息 */
   message: string
+  /** 邀请人(可空) @since 2.7.0 */
+  invitor?: number
 }
 /** Bot被邀请加群事件 */
 export interface BotInvitedJoinGroupRequestEvent extends EventBase {

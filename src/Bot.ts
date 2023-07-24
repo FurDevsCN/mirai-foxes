@@ -167,7 +167,7 @@ export class Bot {
   /**
    * @private ws监听初始化。
    */
-  private async __ListenWs(): Promise<void> {
+  private async listen_ws(): Promise<void> {
     // 判断是否有conf
     if (!this.conf) return
     // 绑定sessionKey和qq
@@ -278,7 +278,7 @@ export class Bot {
       httpUrl: this.conf.httpUrl,
       verifyKey: this.conf.verifyKey
     })
-    await this.__ListenWs()
+    await this.listen_ws()
   }
   /**
    * 向 qq 好友 或 qq 群发送消息。
