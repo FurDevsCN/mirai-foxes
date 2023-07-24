@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    environment: ci
     runs-on: ubuntu-latest
 
     strategy:
@@ -32,6 +33,6 @@ jobs:
         run: npm run build --if-present
       - name: Publish package
         uses: JS-DevTools/npm-publish@v2
-        if: secrets.NPM_TOKEN != ''
+        if: env.NPM_TOKEN != ''
         with:
-          token: ${{ secrets.NPM_TOKEN }}
+          token: ${{ env.NPM_TOKEN }}
