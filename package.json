@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/node": "^18.11.18",
     "@types/ws": "^8.5.3",
-    "@typescript-eslint/eslint-plugin": "^5.32.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^5.32.0",
     "eslint": "^8.21.0",
     "typescript": "^5.1.6",
