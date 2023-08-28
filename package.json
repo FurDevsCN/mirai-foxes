@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/FurDevsCN/mirai-foxes#readme",
   "devDependencies": {
-    "@types/node": "^18.11.18",
+    "@types/node": "^20.5.7",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",
